@@ -1422,6 +1422,7 @@ int parse_output_file_name(char *arg, command_t *cmd_data)
     cmd_data->fake_output_name = arg;
 
     if (name) {
+        if ((ext + 1) == name) ext = NULL;
         name++;
     }
     else {
@@ -1431,6 +1432,7 @@ int parse_output_file_name(char *arg, command_t *cmd_data)
             name = arg;
         }
         else {
+            if ((ext + 1) == name) ext = NULL;
             name++;
         }
     }
