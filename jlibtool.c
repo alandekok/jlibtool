@@ -239,6 +239,7 @@ typedef struct {
 
 typedef struct {
     int silent;
+    int debug;
     enum shared_mode_e shared;
     int export_all;
     int dry_run;
@@ -536,6 +537,8 @@ int parse_long_opt(char *arg, command_t *cmd_data)
 
     if (strcmp(var, "silent") == 0) {
         cmd_data->options.silent = 1;
+    } else if (strcmp(var, "debug") == 0) {
+        cmd_data->options.debug = 1;
     } else if (strcmp(var, "mode") == 0) {
         if (strcmp(value, "compile") == 0) {
             cmd_data->mode = mCompile;
@@ -869,7 +872,7 @@ char *check_object_exists(command_t *cmd, const char *arg, int arglen)
             break;
         }
 
-        if (!cmd->options.silent) {
+        if (cmd->options.debug) {
             printf("Checking (obj): %s\n", newarg);
         }
         rv = stat(newarg, &sb);
@@ -941,7 +944,7 @@ char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
             break;
         }
 
-        if (!cmd->options.silent) {
+        if (cmd->options.debug) {
             printf("Checking (lib): %s\n", newarg);
         }
         rv = stat(newarg, &sb);
@@ -1013,7 +1016,7 @@ void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
 {
 #ifdef DYNAMIC_LINK_OPTS
     if (cmd_data->options.pic_mode != pic_AVOID) {
-        if (!cmd_data->options.silent) {
+        if (cmd_data->options.debug) {
            printf("Adding: %s\n", DYNAMIC_LINK_OPTS);
         }
         push_count_chars(args, DYNAMIC_LINK_OPTS);
@@ -1034,7 +1037,7 @@ void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
         }
         else {
 #ifdef DYNAMIC_LINK_UNDEFINED
-            if (!cmd_data->options.silent) {
+            if (cmd_data->options.debug) {
                 printf("Adding: %s\n", DYNAMIC_LINK_UNDEFINED);
             }
             push_count_chars(args, DYNAMIC_LINK_UNDEFINED);
@@ -1253,7 +1256,7 @@ int explode_static_lib(command_t *cmd_data, const char *lib)
         if (entry->d_name[0] != '.') {
             push_count_chars(&tmpdir_cc, entry->d_name);
             name = flatten_count_chars(&tmpdir_cc, 0);
-            if (!cmd_data->options.silent) {
+            if (cmd_data->options.debug) {
                 printf("Adding: %s\n", name);
             }
             push_count_chars(cmd_data->obj_files, name);
@@ -1521,7 +1524,7 @@ void parse_args(int argc, char *argv[], command_t *cmd_data)
                     arg = argv[++a];
                     argused = parse_output_file_name(arg, cmd_data);
                 } else if (strcmp(arg+1, "MT") == 0) {
-                    if (!cmd_data->options.silent) {
+                    if (cmd_data->options.debug) {
                         printf("Adding: %s\n", arg);
                     }
                     push_count_chars(cmd_data->arglist, arg);
@@ -1565,7 +1568,7 @@ void parse_args(int argc, char *argv[], command_t *cmd_data)
         }
 
         if (!argused) {
-            if (!cmd_data->options.silent) {
+            if (cmd_data->options.debug) {
                 printf("Adding: %s\n", arg);
             }
             push_count_chars(cmd_data->arglist, arg);
