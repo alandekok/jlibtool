@@ -321,13 +321,13 @@ static int snprintf( char *str, size_t n, const char *fmt, ... )
 }
 #endif
 
-void init_count_chars(count_chars *cc)
+static void init_count_chars(count_chars *cc)
 {
     cc->vals = (const char**)malloc(PATH_MAX*sizeof(char*));
     cc->num = 0;
 }
 
-void clear_count_chars(count_chars *cc)
+static void clear_count_chars(count_chars *cc)
 {
     int i;
     for (i = 0; i < cc->num; i++) {
@@ -337,17 +337,17 @@ void clear_count_chars(count_chars *cc)
     cc->num = 0;
 }
 
-void push_count_chars(count_chars *cc, const char *newval)
+static void push_count_chars(count_chars *cc, const char *newval)
 {
     cc->vals[cc->num++] = newval;
 }
 
-void pop_count_chars(count_chars *cc)
+static void pop_count_chars(count_chars *cc)
 {
     cc->num--;
 }
 
-void insert_count_chars(count_chars *cc, const char *newval, int position)
+static void insert_count_chars(count_chars *cc, const char *newval, int position)
 {
     int i;
 
@@ -359,7 +359,7 @@ void insert_count_chars(count_chars *cc, const char *newval, int position)
     cc->num++;
 }
 
-void append_count_chars(count_chars *cc, count_chars *cctoadd)
+static void append_count_chars(count_chars *cc, count_chars *cctoadd)
 {
     int i;
     for (i = 0; i < cctoadd->num; i++) {
@@ -369,7 +369,7 @@ void append_count_chars(count_chars *cc, count_chars *cctoadd)
     }
 }
 
-const char *flatten_count_chars(count_chars *cc, int space)
+static const char *flatten_count_chars(count_chars *cc, int space)
 {
     int i, size;
     char *newval;
@@ -399,7 +399,7 @@ const char *flatten_count_chars(count_chars *cc, int space)
     return newval;
 }
 
-char *shell_esc(const char *str)
+static char *shell_esc(const char *str)
 {
     int in_quote = 0;
     char *cmd;
@@ -433,7 +433,7 @@ char *shell_esc(const char *str)
     return cmd;
 }
 
-int external_spawn(command_t *cmd, const char *file, const char **argv)
+static int external_spawn(command_t *cmd, const char *file, const char **argv)
 {
     if (!cmd->options.silent) {
         const char **argument = argv;
@@ -469,7 +469,7 @@ int external_spawn(command_t *cmd, const char *file, const char **argv)
 #endif
 }
 
-int run_command(command_t *cmd_data, count_chars *cc)
+static int run_command(command_t *cmd_data, count_chars *cc)
 {
     char *command;
     const char *spawn_args[4];
@@ -498,7 +498,7 @@ int run_command(command_t *cmd_data, count_chars *cc)
  * print configuration
  * shlibpath_var is used in configure.
  */
-void print_config()
+static void print_config(void)
 {
 #ifdef LD_RUN_PATH
     printf("runpath_var=%s\n", LD_RUN_PATH);
@@ -513,7 +513,7 @@ void print_config()
 /*
  * Add a directory to the runtime library search path.
  */
-void add_runtimedirlib(char *arg, command_t *cmd_data)
+static void add_runtimedirlib(char *arg, command_t *cmd_data)
 {
 #ifdef RPATH
     add_rpath(cmd_data->shared_opts.dependencies, arg);
@@ -521,7 +521,7 @@ void add_runtimedirlib(char *arg, command_t *cmd_data)
 #endif
 }
 
-int parse_long_opt(char *arg, command_t *cmd_data)
+static int parse_long_opt(char *arg, command_t *cmd_data)
 {
     char *equal_pos = strchr(arg, '=');
     char var[50];
@@ -584,7 +584,7 @@ int parse_long_opt(char *arg, command_t *cmd_data)
 }
 
 /* Return 1 if we eat it. */
-int parse_short_opt(char *arg, command_t *cmd_data)
+static int parse_short_opt(char *arg, command_t *cmd_data)
 {
     if (strcmp(arg, "export-dynamic") == 0) {
         cmd_data->options.export_dynamic = 1;
@@ -646,7 +646,7 @@ int parse_short_opt(char *arg, command_t *cmd_data)
     return 0;
 }
 
-char *truncate_dll_name(char *path)
+static char *truncate_dll_name(char *path)
 {
     /* Cut DLL name down to 8 characters after removing any mod_ prefix */
     char *tmppath = strdup(path);
@@ -671,7 +671,7 @@ char *truncate_dll_name(char *path)
     return tmppath;
 }
 
-long safe_strtol(const char *nptr, const char **endptr, int base)
+static long safe_strtol(const char *nptr, const char **endptr, int base)
 {
     long rv;
 
@@ -686,7 +686,7 @@ long safe_strtol(const char *nptr, const char **endptr, int base)
     return rv;
 }
 
-void safe_mkdir(const char *path)
+static void safe_mkdir(const char *path)
 {
     mode_t old_umask;
 
@@ -701,7 +701,7 @@ void safe_mkdir(const char *path)
 }
 
 /* returns just a file's name without the path */
-const char *jlibtool_basename(const char *fullpath)
+static const char *jlibtool_basename(const char *fullpath)
 {
     const char *name = strrchr(fullpath, '/');
 
@@ -719,7 +719,7 @@ const char *jlibtool_basename(const char *fullpath)
 }
 
 /* returns just a file's name without path or extension */
-const char *nameof(const char *fullpath)
+static const char *nameof(const char *fullpath)
 {
     const char *name;
     const char *ext;
@@ -739,7 +739,7 @@ const char *nameof(const char *fullpath)
 }
 
 /* version_info is in the form of MAJOR:MINOR:PATCH */
-const char *darwin_dynamic_link_function(const char *version_info)
+static const char *darwin_dynamic_link_function(const char *version_info)
 {
     char *newarg;
     long major, minor, patch;
@@ -786,7 +786,7 @@ const char *darwin_dynamic_link_function(const char *version_info)
  * 1 - dynamic
  * 2 - module
  */
-char *gen_library_name(const char *name, int genlib)
+static char *gen_library_name(const char *name, int genlib)
 {
     char *newarg, *newext;
 
@@ -826,7 +826,7 @@ char *gen_library_name(const char *name, int genlib)
  * 1 - dynamic
  * 2 - module
  */
-char *gen_install_name(const char *name, int genlib)
+static char *gen_install_name(const char *name, int genlib)
 {
     struct stat sb;
     char *newname;
@@ -844,7 +844,7 @@ char *gen_install_name(const char *name, int genlib)
     return newname;
 }
 
-char *check_object_exists(command_t *cmd, const char *arg, int arglen)
+static char *check_object_exists(command_t *cmd, const char *arg, int arglen)
 {
     char *newarg, *ext;
     int pass, rv;
@@ -893,7 +893,7 @@ char *check_object_exists(command_t *cmd, const char *arg, int arglen)
  * 0 - no .libs suffix
  * 1 - .libs suffix
  */
-char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
+static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
                            int libdircheck, enum lib_type *libtype)
 {
     char *newarg, *ext;
@@ -958,7 +958,7 @@ char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
     return NULL;
 }
 
-char * load_install_path(const char *arg)
+static char * load_install_path(const char *arg)
 {
     FILE *f;
     char *path;
@@ -983,7 +983,7 @@ char * load_install_path(const char *arg)
     return path;
 }
 
-char * load_noinstall_path(const char *arg, int pathlen)
+static char * load_noinstall_path(const char *arg, int pathlen)
 {
     char *newarg, *expanded_path;
     int newpathlen;
@@ -1012,7 +1012,7 @@ char * load_noinstall_path(const char *arg, int pathlen)
     return expanded_path;
 }
 
-void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
+static void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
 {
 #ifdef DYNAMIC_LINK_OPTS
     if (cmd_data->options.pic_mode != pic_AVOID) {
@@ -1049,7 +1049,7 @@ void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
 
 /* Read the final install location and add it to runtime library search path. */
 #ifdef RPATH
-void add_rpath(count_chars *cc, const char *path)
+static void add_rpath(count_chars *cc, const char *path)
 {
     int size = 0;
     char *tmp;
@@ -1076,7 +1076,7 @@ void add_rpath(count_chars *cc, const char *path)
     push_count_chars(cc, tmp);
 }
 
-void add_rpath_file(count_chars *cc, const char *arg)
+static void add_rpath_file(count_chars *cc, const char *arg)
 {
     const char *path;
 
@@ -1086,7 +1086,7 @@ void add_rpath_file(count_chars *cc, const char *arg)
     }
 }
 
-void add_rpath_noinstall(count_chars *cc, const char *arg, int pathlen)
+static void add_rpath_noinstall(count_chars *cc, const char *arg, int pathlen)
 {
     const char *path;
 
@@ -1098,7 +1098,7 @@ void add_rpath_noinstall(count_chars *cc, const char *arg, int pathlen)
 #endif
 
 #ifdef DYNAMIC_LINK_NO_INSTALL
-void add_dylink_noinstall(count_chars *cc, const char *arg, int pathlen,
+static void add_dylink_noinstall(count_chars *cc, const char *arg, int pathlen,
                           int extlen)
 {
     const char *install_path, *current_path, *name;
@@ -1147,7 +1147,7 @@ void add_dylink_noinstall(count_chars *cc, const char *arg, int pathlen,
 #endif
 
 /* use -L -llibname to allow to use installed libraries */
-void add_minus_l(count_chars *cc, const char *arg)
+static void add_minus_l(count_chars *cc, const char *arg)
 {
     char *newarg;
     char *name = strrchr(arg, '/');
@@ -1171,7 +1171,7 @@ void add_minus_l(count_chars *cc, const char *arg)
     }
 }
 
-void add_linker_flag_prefix(count_chars *cc, const char *arg)
+static void add_linker_flag_prefix(count_chars *cc, const char *arg)
 {
 #ifndef LINKER_FLAG_PREFIX
     push_count_chars(cc, arg);
@@ -1184,7 +1184,7 @@ void add_linker_flag_prefix(count_chars *cc, const char *arg)
 #endif
 }
 
-int explode_static_lib(command_t *cmd_data, const char *lib)
+static int explode_static_lib(command_t *cmd_data, const char *lib)
 {
     count_chars tmpdir_cc, libname_cc;
     const char *tmpdir, *libname;
@@ -1268,7 +1268,7 @@ int explode_static_lib(command_t *cmd_data, const char *lib)
     return 0;
 }
 
-int parse_input_file_name(char *arg, command_t *cmd_data)
+static int parse_input_file_name(char *arg, command_t *cmd_data)
 {
     char *ext = strrchr(arg, '.');
     char *name = strrchr(arg, '/');
@@ -1415,7 +1415,7 @@ int parse_input_file_name(char *arg, command_t *cmd_data)
     return 0;
 }
 
-int parse_output_file_name(char *arg, command_t *cmd_data)
+static int parse_output_file_name(char *arg, command_t *cmd_data)
 {
     char *name = strrchr(arg, '/');
     char *ext = strrchr(arg, '.');
@@ -1499,7 +1499,7 @@ int parse_output_file_name(char *arg, command_t *cmd_data)
     return 0;
 }
 
-void parse_args(int argc, char *argv[], command_t *cmd_data)
+static void parse_args(int argc, char *argv[], command_t *cmd_data)
 {
     int a;
     char *arg;
@@ -1578,7 +1578,7 @@ void parse_args(int argc, char *argv[], command_t *cmd_data)
 }
 
 #ifdef GEN_EXPORTS
-void generate_def_file(command_t *cmd_data)
+static void generate_def_file(command_t *cmd_data)
 {
     char def_file[1024];
     char implib_file[1024];
@@ -1649,7 +1649,7 @@ void generate_def_file(command_t *cmd_data)
 }
 #endif
 
-const char* expand_path(const char *relpath)
+static const char* expand_path(const char *relpath)
 {
     char foo[PATH_MAX], *newpath;
 
@@ -1661,7 +1661,7 @@ const char* expand_path(const char *relpath)
     return newpath;
 }
 
-void link_fixup(command_t *c)
+static void link_fixup(command_t *c)
 {
     /* If we were passed an -rpath directive, we need to build
      * shared objects too.  Otherwise, we should only create static
@@ -1719,7 +1719,7 @@ void link_fixup(command_t *c)
     }
 }
 
-void post_parse_fixup(command_t *cmd_data)
+static void post_parse_fixup(command_t *cmd_data)
 {
     switch (cmd_data->mode)
     {
@@ -1764,7 +1764,7 @@ void post_parse_fixup(command_t *cmd_data)
     }
 }
 
-int run_mode(command_t *cmd_data)
+static int run_mode(command_t *cmd_data)
 {
     int rv;
     count_chars *cctemp;
@@ -1942,7 +1942,7 @@ int run_mode(command_t *cmd_data)
     return 0;
 }
 
-void cleanup_tmp_dir(const char *dirname)
+static void cleanup_tmp_dir(const char *dirname)
 {
     DIR *dir;
     struct dirent *entry;
@@ -1965,7 +1965,7 @@ void cleanup_tmp_dir(const char *dirname)
     rmdir(dirname);
 }
 
-void cleanup_tmp_dirs(command_t *cmd_data)
+static void cleanup_tmp_dirs(command_t *cmd_data)
 {
     int d;
 
@@ -1974,7 +1974,7 @@ void cleanup_tmp_dirs(command_t *cmd_data)
     }
 }
 
-int ensure_fake_uptodate(command_t *cmd_data)
+static int ensure_fake_uptodate(command_t *cmd_data)
 {
     /* FIXME: could do the stat/touch here, but nah... */
     const char *touch_args[3];
@@ -1993,7 +1993,7 @@ int ensure_fake_uptodate(command_t *cmd_data)
 }
 
 /* Store the install path in the *.la file */
-int add_for_runtime(command_t *cmd_data)
+static int add_for_runtime(command_t *cmd_data)
 {
     if (cmd_data->mode == mInstall) {
         return 0;
