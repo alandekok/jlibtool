@@ -651,7 +651,7 @@ static char *truncate_dll_name(char *path)
     /* Cut DLL name down to 8 characters after removing any mod_ prefix */
     char *tmppath = strdup(path);
     char *newname = strrchr(tmppath, '/') + 1;
-    char *ext = strrchr(tmppath, '.');
+    char *ext = strrchr(newname, '.');
     int len;
 
     if (ext == NULL)
@@ -781,6 +781,28 @@ static const char *darwin_dynamic_link_function(const char *version_info)
     return newarg;
 }
 
+
+/*
+ *	Add a '.libs/' to the buffer.  The caller ensures that
+ *	The buffer is large enough to handle 6 extra characters.
+ */
+static void add_dotlibs(char *buffer)
+{
+	char *name = strrchr(buffer, '/');
+
+	if (!name) {
+		if (!buffer[0]) {
+			strcpy(buffer, ".libs/");
+			return;
+		}
+		name = buffer;
+	} else {
+		name++;
+	}
+	memmove(name + 6, name, strlen(name));
+	memcpy(name, ".libs/", 6);
+}
+
 /* genlib values
  * 0 - static
  * 1 - dynamic
@@ -791,7 +813,6 @@ static char *gen_library_name(const char *name, int genlib)
     char *newarg, *newext;
 
     newarg = (char *)malloc(strlen(name) + 11);
-    strcpy(newarg, ".libs/");
 
     if (genlib == 2 && strncmp(name, "lib", 3) == 0) {
         name += 3;
@@ -817,6 +838,8 @@ static char *gen_library_name(const char *name, int genlib)
         strcpy(newext, MODULE_LIB_EXT);
         break;
     }
+
+    add_dotlibs(newarg);
 
     return newarg;
 }
@@ -905,7 +928,7 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
 
     newpathlen = pathlen;
     if (libdircheck) {
-        strcat(newarg, ".libs/");
+        add_dotlibs(newarg);
         newpathlen += sizeof(".libs/") - 1;
     }
 
@@ -1271,7 +1294,7 @@ static int explode_static_lib(command_t *cmd_data, const char *lib)
 static int parse_input_file_name(char *arg, command_t *cmd_data)
 {
     char *ext = strrchr(arg, '.');
-    char *name = strrchr(arg, '/');
+    char *name;
     int pathlen;
     enum lib_type libtype;
     char *newarg;
@@ -1450,6 +1473,21 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         cmd_data->static_name.install = gen_install_name(arg, 0);
         cmd_data->shared_name.install = gen_install_name(arg, 1);
         cmd_data->module_name.install = gen_install_name(arg, 2);
+
+        if (!cmd_data->options.dry_run) {
+		name = malloc(strlen(cmd_data->static_name.normal) + 1);
+
+		strcpy(name, cmd_data->static_name.normal);
+		ext = strrchr(name, '/');
+		if (!ext) {
+			/* Check first to see if the dir already exists! */
+			safe_mkdir(".libs");
+		} else {
+			*ext = '\0';
+			safe_mkdir(name);
+		}
+		free(name);
+        }
 
 #ifdef TRUNCATE_DLL_NAME
         if (shared) {
@@ -1848,11 +1886,6 @@ static int run_mode(command_t *cmd_data)
         }
         break;
     case mLink:
-        if (!cmd_data->options.dry_run) {
-            /* Check first to see if the dir already exists! */
-            safe_mkdir(".libs");
-        }
-
         if (cmd_data->output == otStaticLibraryOnly ||
             cmd_data->output == otLibrary) {
 #ifdef RANLIB
