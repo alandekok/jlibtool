@@ -1281,18 +1281,7 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
     }
 
     ext++;
-
-    if (name == NULL) {
-        name = strrchr(arg, '\\');
-
-        if (name == NULL) {
-            name = arg;
-        } else {
-            name++;
-        }
-    } else {
-        name++;
-    }
+    name = jlibtool_basename(arg);
 
     pathlen = name - arg;
 
@@ -1417,28 +1406,15 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
 
 static int parse_output_file_name(char *arg, command_t *cmd_data)
 {
-    char *name = strrchr(arg, '/');
-    char *ext = strrchr(arg, '.');
+    char *name;
+    char *ext;
     char *newarg = NULL;
     int pathlen;
 
     cmd_data->fake_output_name = arg;
 
-    if (name) {
-        if ((ext + 1) == name) ext = NULL;
-        name++;
-    }
-    else {
-        name = strrchr(arg, '\\');
-
-        if (name == NULL) {
-            name = arg;
-        }
-        else {
-            if ((ext + 1) == name) ext = NULL;
-            name++;
-        }
-    }
+    name = jlibtool_basename(arg);
+    ext = strrchr(name, '.');
 
 #ifdef EXE_EXT
     if (!ext || strcmp(ext, EXE_EXT) == 0) {
