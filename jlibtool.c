@@ -550,16 +550,17 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
         if (strcmp(value, "compile") == 0) {
             cmd_data->mode = mCompile;
             cmd_data->output = otObject;
-        }
 
-        if (strcmp(value, "link") == 0) {
+        } else if (strcmp(value, "link") == 0) {
             cmd_data->mode = mLink;
             cmd_data->output = otLibrary;
-        }
 
-        if (strcmp(value, "install") == 0) {
+	} else if (strcmp(value, "install") == 0) {
             cmd_data->mode = mInstall;
-        }
+
+        } else {
+	    printf("Unknown mode \"%s\"\n", value);
+	}
     } else if (strcmp(var, "shared") == 0) {
         if (cmd_data->mode == mLink) {
             cmd_data->output = otDynamicLibraryOnly;
@@ -2063,7 +2064,7 @@ int main(int argc, char *argv[])
     post_parse_fixup(&cmd_data);
 
     if (cmd_data.mode == mUnknown) {
-        exit(0);
+        exit(1);
     }
 
     rc = run_mode(&cmd_data);
