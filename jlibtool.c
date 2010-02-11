@@ -73,6 +73,7 @@
 #  define HAS_REALPATH
 /*-install_name  /Users/jerenk/apache-2.0-cvs/lib/libapr.0.dylib -compatibility_version 1 -current_version 1.0 */
 #  define LD_LIBRARY_PATH "DYLD_LIBRARY_PATH"
+#  define LD_LIBRARY_PATH_LOCAL "DYLD_FALLBACK_LIBRARY_PATH"
 #endif
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__)
@@ -93,6 +94,7 @@
 #  define ADD_MINUS_L
 #  define LD_RUN_PATH "LD_RUN_PATH"
 #  define LD_LIBRARY_PATH "LD_LIBRARY_PATH"
+#  define LD_LIBRARY_PATH_LOCAL LD_LIBRARY_PATH
 #endif
 
 #if defined(sun)
@@ -114,6 +116,7 @@
 #  define HAS_REALPATH
 #  define LD_RUN_PATH "LD_RUN_PATH"
 #  define LD_LIBRARY_PATH "LD_LIBRARY_PATH"
+#  define LD_LIBRARY_PATH_LOCAL LD_LIBRARY_PATH
 #endif
 
 #if defined(_OSD_POSIX)
@@ -146,6 +149,7 @@
 #  define NEED_SNPRINTF
 #  define LD_RUN_PATH "LD_RUN_PATH"
 #  define LD_LIBRARY_PATH "LD_LIBRARY_PATH"
+#  define LD_LIBRARY_PATH_LOCAL LD_LIBRARY_PATH
 #endif
 
 #if defined(__MINGW32__)
@@ -505,6 +509,9 @@ static void print_config(void)
 #endif
 #ifdef LD_LIBRARY_PATH
     printf("shlibpath_var=%s\n", LD_LIBRARY_PATH);
+#endif
+#ifdef LD_LIBRARY_PATH_LOCAL
+    printf("shlocallibpath_var=%s\n", LD_LIBRARY_PATH_LOCAL);
 #endif
 #ifdef SHELL_CMD
     printf("SHELL=\"%s\"\n", SHELL_CMD);
