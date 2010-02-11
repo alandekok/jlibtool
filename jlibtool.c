@@ -192,6 +192,7 @@ enum tool_mode_t {
     mUnknown,
     mCompile,
     mLink,
+    mExecute,
     mInstall,
 };
 
@@ -557,6 +558,9 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
 
 	} else if (strcmp(value, "install") == 0) {
             cmd_data->mode = mInstall;
+
+	} else if (strcmp(value, "execute") == 0) {
+            cmd_data->mode = mExecute;
 
         } else {
 	    printf("Unknown mode \"%s\"\n", value);
@@ -1952,6 +1956,29 @@ static int run_mode(command_t *cmd_data)
             }
         }
         break;
+    case mExecute:
+    {
+        char *l, libpath[PATH_MAX];
+
+        strcpy(libpath, cmd_data->arglist->vals[0]);
+        add_dotlibs(libpath);
+	l = strrchr(libpath, '/');
+	if (!l) l = strrchr(libpath, '\\');
+	if (l) {
+	    *l = '\0';
+	    l = libpath;
+	} else {
+	    l = ".libs/";
+	}
+
+	setenv(LD_LIBRARY_PATH_LOCAL, l, 1);
+	rv = run_command(cmd_data, cmd_data->arglist);
+	if (rv) {
+	    return rv;
+	}
+    }
+      break;
+
     default:
         break;
     }
