@@ -168,6 +168,8 @@
 #  define EXE_EXT ".exe"
 #endif
 
+#define OBJDIR ".libs"
+
 #ifndef SHELL_CMD
 #error Unsupported platform: Please add defines for SHELL_CMD etc. for your platform.
 #endif
@@ -503,19 +505,49 @@ static int run_command(command_t *cmd_data, count_chars *cc)
  * print configuration
  * shlibpath_var is used in configure.
  */
+#define printc(_x,_y) printf(_x "=\"%s\"\n", _y)
+
 static void print_config(void)
 {
 #ifdef LD_RUN_PATH
-    printf("runpath_var=%s\n", LD_RUN_PATH);
+    printc("runpath_var", LD_RUN_PATH);
 #endif
 #ifdef LD_LIBRARY_PATH
-    printf("shlibpath_var=%s\n", LD_LIBRARY_PATH);
+    printc("shlibpath_var", LD_LIBRARY_PATH);
 #endif
 #ifdef LD_LIBRARY_PATH_LOCAL
-    printf("shlocallibpath_var=%s\n", LD_LIBRARY_PATH_LOCAL);
+    printc("shlocallibpath_var", LD_LIBRARY_PATH_LOCAL);
 #endif
 #ifdef SHELL_CMD
-    printf("SHELL=\"%s\"\n", SHELL_CMD);
+    printc("SHELL", SHELL_CMD);
+#endif
+#ifdef OBJECT_EXT
+    printc("objext", OBJECT_EXT);
+#endif
+#ifdef OBJDIR
+    printc("objdir", OBJDIR);
+#endif
+#ifdef DYNAMIC_LIB_EXT
+    /* add a '.' prefix because libtool does that. */
+    printc("shrext_cmds", DYNAMIC_LIB_EXT);
+#endif
+#ifdef EXE_EXT
+    printc("exeext", EXE_EXT);
+#endif
+#ifdef STATIC_LIB_EXT
+    printc("libext", STATIC_LIB_EXT);
+#endif
+#ifdef LIBRARIAN
+    printc("AR", LIBRARIAN);
+#endif
+#ifdef LIBRARIAN_OPTS
+    printc("AR_FLAGS", LIBRARIAN_OPTS);
+#endif
+#ifdef LINKER_FLAG_PREFIX
+    printc("wl", LINKER_FLAG_PREFIX);
+#endif
+#ifdef RANLIB
+    printc("ranlib", RANLIB);
 #endif
 }
 /*
