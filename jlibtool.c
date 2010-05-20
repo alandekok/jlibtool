@@ -598,9 +598,10 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
 	    printf("Unknown mode \"%s\"\n", value);
 	}
     } else if (strcmp(var, "shared") == 0) {
-        if (cmd_data->mode == mLink) {
+      if ((cmd_data->mode == mLink) &&
+	  (cmd_data->output == otGeneral)) {
             cmd_data->output = otDynamicLibraryOnly;
-        }
+	}
         cmd_data->options.shared = share_SHARED;
     } else if (strcmp(var, "export-all") == 0) {
         cmd_data->options.export_all = 1;
@@ -1497,7 +1498,7 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         strcpy(newarg, arg);
 #ifdef EXE_EXT
 	if (!ext) {
-        strcat(newarg, EXE_EXT);
+	  strcat(newarg, EXE_EXT);
 	}
 #endif
         cmd_data->output_name = newarg;
