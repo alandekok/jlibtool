@@ -529,7 +529,9 @@ static void print_config(void)
 #endif
 #ifdef DYNAMIC_LIB_EXT
     /* add a '.' prefix because libtool does that. */
-    printc("shrext_cmds", DYNAMIC_LIB_EXT);
+    printc("shrext_cmds", "echo ." DYNAMIC_LIB_EXT);
+    /* add a '.' prefix because libtool does that. */
+    printc("shrext", "." DYNAMIC_LIB_EXT);
 #endif
 #ifdef EXE_EXT
     printc("exeext", EXE_EXT);
