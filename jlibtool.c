@@ -735,6 +735,7 @@ static int parse_short_opt(char *arg, command_t *cmd_data)
     return 0;
 }
 
+#ifdef TRUNCATE_DLL_NAME
 static char *truncate_dll_name(char *path)
 {
     /* Cut DLL name down to 8 characters after removing any mod_ prefix */
@@ -759,6 +760,7 @@ static char *truncate_dll_name(char *path)
 
     return tmppath;
 }
+#endif
 
 static long safe_strtol(const char *nptr, const char **endptr, int base)
 {
@@ -807,6 +809,7 @@ static const char *jlibtool_basename(const char *fullpath)
     return name;
 }
 
+#ifdef GEN_EXPORTS
 /* returns just a file's name without path or extension */
 static const char *nameof(const char *fullpath)
 {
@@ -826,6 +829,7 @@ static const char *nameof(const char *fullpath)
 
     return name;
 }
+#endif
 
 /* version_info is in the form of MAJOR:MINOR:PATCH */
 static const char *darwin_dynamic_link_function(const char *version_info)
@@ -956,7 +960,7 @@ static char *gen_install_name(const char *name, int genlib)
     return newname;
 }
 
-static char *check_object_exists(command_t *cmd, const char *arg, int arglen)
+static const char *check_object_exists(command_t *cmd, const char *arg, int arglen)
 {
     char *newarg, *ext;
     int pass, rv;
@@ -1258,6 +1262,7 @@ static void add_dylink_noinstall(count_chars *cc, const char *arg, int pathlen,
 }
 #endif
 
+#ifdef ADD_MINUS_L
 /* use -L -llibname to allow to use installed libraries */
 static void add_minus_l(count_chars *cc, const char *arg)
 {
@@ -1282,7 +1287,9 @@ static void add_minus_l(count_chars *cc, const char *arg)
         push_count_chars(cc, arg);
     }
 }
+#endif
 
+#if 0
 static void add_linker_flag_prefix(count_chars *cc, const char *arg)
 {
 #ifndef LINKER_FLAG_PREFIX
@@ -1295,6 +1302,7 @@ static void add_linker_flag_prefix(count_chars *cc, const char *arg)
     push_count_chars(cc, newarg);
 #endif
 }
+#endif
 
 static int explode_static_lib(command_t *cmd_data, const char *lib)
 {
@@ -1382,11 +1390,11 @@ static int explode_static_lib(command_t *cmd_data, const char *lib)
 
 static int parse_input_file_name(char *arg, command_t *cmd_data)
 {
-    char *ext = strrchr(arg, '.');
-    char *name;
+    const char *ext = strrchr(arg, '.');
+    const char *name;
     int pathlen;
     enum lib_type libtype;
-    char *newarg;
+    const char *newarg;
 
     if (!ext) {
         return 0;
@@ -1518,8 +1526,8 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
 
 static int parse_output_file_name(char *arg, command_t *cmd_data)
 {
-    char *name;
-    char *ext;
+    const char *name;
+    const char *ext;
     char *newarg = NULL;
     int pathlen;
 
@@ -1564,18 +1572,20 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         cmd_data->module_name.install = gen_install_name(arg, 2);
 
         if (!cmd_data->options.dry_run) {
-		name = malloc(strlen(cmd_data->static_name.normal) + 1);
+		char *newname;
+		char *newext;
+		newname = malloc(strlen(cmd_data->static_name.normal) + 1);
 
-		strcpy(name, cmd_data->static_name.normal);
-		ext = strrchr(name, '/');
-		if (!ext) {
+		strcpy(newname, cmd_data->static_name.normal);
+		newext = strrchr(newname, '/');
+		if (!newext) {
 			/* Check first to see if the dir already exists! */
 			safe_mkdir(".libs");
 		} else {
-			*ext = '\0';
-			safe_mkdir(name);
+			*newext = '\0';
+			safe_mkdir(newname);
 		}
-		free(name);
+		free(newname);
         }
 
 #ifdef TRUNCATE_DLL_NAME
@@ -1589,12 +1599,13 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
     }
 
     if (strcmp(ext, "lo") == 0) {
+        char *newext;
         cmd_data->basename = arg;
         cmd_data->output = otObject;
         newarg = (char *)malloc(strlen(arg) + 2);
         strcpy(newarg, arg);
-        ext = strrchr(newarg, '.') + 1;
-        strcpy(ext, OBJECT_EXT);
+        newext = strrchr(newarg, '.') + 1;
+        strcpy(newext, OBJECT_EXT);
         cmd_data->output_name = newarg;
         return 1;
     }
@@ -1752,6 +1763,7 @@ static void generate_def_file(command_t *cmd_data)
 }
 #endif
 
+#if 0
 static const char* expand_path(const char *relpath)
 {
     char foo[PATH_MAX], *newpath;
@@ -1763,6 +1775,7 @@ static const char* expand_path(const char *relpath)
     strcat(newpath, relpath);
     return newpath;
 }
+#endif
 
 static void link_fixup(command_t *c)
 {
