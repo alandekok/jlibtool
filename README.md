@@ -8,7 +8,7 @@ This speed difference is most noticable on large projects.
 
 Jlibtool was originally taken from the Apache Software Foundation, at:
 
-	http://svn.apache.org/repos/asf/apr/apr/trunk/build/jlibtool.c
+    http://svn.apache.org/repos/asf/apr/apr/trunk/build/jlibtool.c
 
 it was then modified to fix a number of incompatibilities with GNU
 Libtool.  It has been used to build a large project (100's of C files,
@@ -17,10 +17,11 @@ loadable modules, cross-platform).
 ## Build
 
 There is no `configure` script, as none is needed.  There is no
-"Makefile", as none is needed.  It is written using Posix / C
+`Makefile`, as none is needed.  Jlibtool is written using Posix / C
 functions that are available on all modern operating systems.
 
-Instead, just use `make`, which is smart enough to figure it out:
+Instead, just use `make`, which is smart enough to figure out how to
+build it:
 
     $ make
 
@@ -28,10 +29,18 @@ If you don't have `make`, use the following command:
 
     $ cc jlibtool.c -o jlibtool
 
+If you don't have a working C compiler, use libtool.
+
+## Portability
+
 It should build without errors on all Posix compatible operating
 systems.  It will likely also build on Windows, though that has not
 been tried.  If there are build errors on Windows, the patches to fix
-the problem are likely to be small.
+the problem are likely to be small.  Please submit patches, and they
+will be integrated into the next version.
+
+The source contains compile-time checks for OS/2, Mac OS X, Linux,
+FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.
 
 ## Usage
 
@@ -45,7 +54,8 @@ Libtool has many features, and has been under development for many
 years.  Libtool is intended to solve portability problems for dozens
 of esoteric operating systems and compilers, many of which no longer
 have net access.  The result is that users of libtool are being
-punished with slow build times for the mistakes of others decades ago.
+punished with slow build times for the mistakes that others made
+decades ago.
 
 Jlibtool is intended to solve the "last mile" of portability problems.
 That is, for the common case of modern operating systems, it hides the
@@ -87,24 +97,57 @@ Jlibtool is _mostly_ compatible with libtool.  It accepts many of the
 same comman-line arguments as jlibtool, and behaves largely in the
 same way.  See `jlibtool --help` for specific details.
 
-If your project uses libltdl, then jlibtool is probably not for you.
-There is a magic relationship between those two programs that jlibtool
-does not try to emulate.
+If your project uses libltdl, then jlibtool may not be for you.  There
+is a magic relationship between those two programs that jlibtool does
+not try to emulate.
 
-Instead, you can probably change your project to use the normal dlopen
-APIs.  As of 2012, all modern Posix systems support dlopen() and
-friends.  Windows does not (of course), but there is a replacement
-library available at:
+However, you should probably change your project to use the normal
+`dlopen()` APIs.  As of 2012, all modern Posix systems support the
+`dlopen()` API.  Windows does not (of course), but there is a
+replacement library available at:
 
-	http://code.google.com/p/dlfcn-win32/
+    http://code.google.com/p/dlfcn-win32/
 
 It is smaller than libltdl (~10K versus ~250K), and does not require
 integration with libtool.
 
+# Issues
+
 Please report any incompatibilities with libtool via the github issues
 system, or to the following address:
 
-       Alan DeKok <aland@freeradius.org>
+    Alan DeKok <aland@freeradius.org>
+
+## Author
+
+The original implementation was written by the Apache Foundation.  A
+web page is at:
+
+    http://incubator.apache.org/ip-clearance/apr-jlibtool.html
+
+But that hasn't been updated since 2004.
+
+The main Apache Portable Runtime version of jlibtool hasn't had a
+commit since July 2010.  I think it's safe to say it's no longer under
+active development.
+
+## Changes from upstream
+
+The changes from the upstream version are visible in git.  A short
+list is given here:
+
+* Added help text
+* print shrext and shrext_cmds for libtool compatibility
+* don't dump core if we get --shared for an executable
+* add "--mode=execute", which sets LD_LIBRARY_PATH as needed
+  * use DYLD_FALLBACK_LIBRARY_PATH on Mac OS X
+* Complains descriptively about unknown modes, instead of silently exiting
+* Better filename handling
+  * Put ".libs/" directory in the correct place, by interpolating it into the filename instead of prefixing it to the filename.
+  * "." in "./foo" doesn't signify an extension like it does in "foo.a"
+* Use "static" in more places, and remove compiler warnings
+* Add --debug parameter to simplify the output
 
 # Libtool and libltld: Just Say No
 
+They were wonderful for their time.  It is time to retire them.
