@@ -2,7 +2,7 @@
 
 Jlibtool is a replacement for GNU Libtool.  As it is a C program
 rather than a shell script, it is significantly faster than libool.
-This speed difference is most noticable on large projects.
+This speed difference is very noticable on large projects.
 
 ## Origin
 
@@ -63,13 +63,13 @@ minor platform-specific details that cause aggravation.
 
 When you want your program to build on multiple systems with minimal
 fuss, use jlibtool.  When you want your program to build on systems
-you've kept running for a decade, use libtool.
+that have been running for two decades, use libtool.
 
 ## Speed
 
-As jlibtool is a binary rather than a shell script, it is enormously
-faster than libtool.  Using it in a large project can substantially
-reduce build times.
+Since jlibtool is a compiled program, it is enormously faster than
+libtool.  Using it in a large project can substantially reduce build
+times.
 
 # Install
 
@@ -83,8 +83,8 @@ that you _know_ the functionality of jlibtool, and that you _know_
 that it works.
 
 Many cross-platorm build problems with large projects have been traced
-to using an installed version of build tools (libtool, etc.), instead
-of using a version shipped with the project.
+to using an installed version of build tools (libtool, libltdl, etc.),
+instead of using a version shipped with the project.
 
 Jlibtool is a tool to help build your project on a variety of
 platforms.  It is _not_ a tool to help other people on those platforms
