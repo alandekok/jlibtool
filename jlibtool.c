@@ -593,6 +593,7 @@ static void print_config(void)
 #ifdef RANLIB
     printc("ranlib", RANLIB);
 #endif
+
 }
 /*
  * Add a directory to the runtime library search path.
@@ -658,6 +659,7 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
 	usage(0);
     } else if (strcmp(var, "config") == 0) {
         print_config();
+	exit(0);
     } else if (strcmp(var, "tag") == 0) {
         if (strcmp(value, "CC") == 0) {
             /* Do nothing. */
