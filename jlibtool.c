@@ -180,6 +180,10 @@
 #define LINK_cxx "g++"
 #endif
 
+#ifndef LIBDIR
+#define LIBDIR "/usr/local/lib"
+#endif
+
 #define OBJDIR ".libs"
 
 #ifndef SHELL_CMD
@@ -1829,11 +1833,8 @@ static void link_fixup(command_t *c)
      */
     if (!c->install_path && (c->output == otDynamicLibraryOnly ||
         c->output == otModule || c->output == otLibrary)) {
-        c->output = otStaticLibraryOnly;
-
 	if (c->options.shared == share_SHARED) {
-	    fprintf(stderr, "Can not build a shared library without -rpath");
-            exit(1);
+		c->install_path = LIBDIR;
 	}
     }
 
