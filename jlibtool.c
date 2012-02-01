@@ -1639,6 +1639,18 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         return 1;
     }
 
+    if (strcmp(ext, DYNAMIC_LIB_EXT) == 0) {
+      fprintf(stderr, "Please build libraries with .la target, not ."
+	      DYNAMIC_LIB_EXT "\n");
+      exit(1);
+    }
+
+    if (strcmp(ext, STATIC_LIB_EXT) == 0) {
+      fprintf(stderr, "Please build libraries with .la target, not ."
+	      STATIC_LIB_EXT "\n");
+      exit(1);
+    }
+
     return 0;
 }
 
