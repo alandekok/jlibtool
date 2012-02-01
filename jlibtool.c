@@ -323,6 +323,7 @@ static void usage(int code)
 	printf("      -prefer-non-pic  prefer non position-independent-code when compiling\n");
 	printf("      -static          create a static library when linking\n");
 	printf("      -no-install      link libraries locally\n");
+	printf("      -rpath arg       Set install path for shared libraries\n");
 	printf("      -l arg           pass '-l arg' to the link stage\n");
 	printf("      -L arg           pass '-L arg' to the link stage\n");
 	printf("      -R dir           add 'dir' to runtime library search path.\n");
