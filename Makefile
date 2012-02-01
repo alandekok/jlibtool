@@ -39,10 +39,7 @@ libexample2.la: example2.lo
 #  figure out what to run as above, but with fewer command-line
 #  arguments.
 
-CC: jlibtool
-	ln -sf $< $@
-
-LINK: jlibtool
+CC LINK: jlibtool
 	ln -sf $< $@
 
 example3.c: example.c
