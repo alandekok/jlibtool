@@ -168,6 +168,18 @@
 #  define EXE_EXT ".exe"
 #endif
 
+#ifndef CC
+#define CC "gcc"
+#endif
+
+#ifndef LINK_c
+#define LINK_c "gcc"
+#endif
+
+#ifndef LINK_cxx
+#define LINK_cxx "g++"
+#endif
+
 #define OBJDIR ".libs"
 
 #ifndef SHELL_CMD
@@ -1686,6 +1698,30 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
         }
 
         if (!argused) {
+		/*
+		 *  We now take a major step past libtool.
+		 *
+		 *  IF there's no "--mode=...", AND we recognise
+		 *  the binary as a "special" name, THEN replace it
+		 *  with the correct one, and set the correct mode.
+		 */
+		if ((cmd_data->arglist->num == 0) &&
+		    (cmd_data->mode == mUnknown)) {
+			if (strcmp(arg, "CC") == 0) {
+				arg = CC;
+				cmd_data->mode = mCompile;
+			} else if (strcmp(arg, "LINK.c") == 0) {
+					arg = LINK_c;
+					cmd_data->mode = mLink;
+			} else if (strcmp(arg, "LINK") == 0) {
+					arg = LINK_c;
+					cmd_data->mode = mLink;
+			} else if (strcmp(arg, "LINK.cxx") == 0) {
+				arg = LINK_cxx;
+				cmd_data->mode = mLink;
+			}
+		}
+
             if (cmd_data->options.debug) {
                 printf("Adding: %s\n", arg);
             }
