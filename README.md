@@ -47,6 +47,58 @@ FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.
 Edit your build system (usually a Makefile), and replace references to
 "libtool" with "jlibtool".  Many projects will "just work".
 
+### Even Better Usage
+
+`jlibtool` is smarter than `libtool` in some situations.  For
+compatibility, it still accepts the `--mode=compile` options.  But it
+can be smarter.  Let's see why, using a common example:
+
+  $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
+
+Stare at that for a second.  Now look at the XKCD comic:
+
+  http://xkcd.com/927/
+  
+  Panel 1: Situation: There are 14 competing standards.
+  
+  Panel 2: Ridiculous! We need to develop one universal standard
+           that covers everyone's use cases!
+  
+  Panel 3: Situation: There are 15 competing standards.
+
+There is a better way.
+
+When you compile `jlibtool`, it knows which C compiler is used.  This
+is done by looking at the `CC` environment variable:
+
+  $ CC=gcc gcc jlibtool.c -o jlibtool
+
+`jlibtool` remembers the value of `CC`.  It can then use it for your
+builds.  Leave off the redundant `--mode=compile` text.  Asking you to
+remember that is rude.  Just use `CC` as the compiler, instead of
+`$(CC)`.
+
+  $ ./jlibtool CC -c foo.c -o foo.lo
+
+Isn't that nicer?
+
+Even better, make a soft link, and you compilation line will get even
+simpler:
+
+  $ ln -sf jlibtool CC
+  $ ./CC -c foo.c -o foo.lo
+
+`jlibtool` will look at the name you used to invoke it.  If it's `CC`,
+then it behaves like a compiler.  If it's `LINK`, it behaves like a
+(C) linker.  The special names `LINK.c` and `LINK.cxx` behave as
+expected, too.
+
+I've switched a number of build systems to using the new `jlibtool`.
+All of the platform-specific magic is hidden inside of it.  The build
+systems aren't littered with references to `libtool` and hordes of
+libtool-specific command-line arguments.  This means your build system
+is much simpler, and more understandable.
+
 ## Limitations
 
 That being said, jlibtool is not a "drop in" replacement for libtool.
