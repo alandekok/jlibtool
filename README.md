@@ -8,7 +8,7 @@ This speed difference is very noticable on large projects.
 
 Jlibtool was originally taken from the Apache Software Foundation, at:
 
-    http://svn.apache.org/repos/asf/apr/apr/trunk/build/jlibtool.c
+  http://svn.apache.org/repos/asf/apr/apr/trunk/build/jlibtool.c
 
 it was then modified to fix a number of incompatibilities with GNU
 Libtool.  It has been used to build a large project (100's of C files,
@@ -53,40 +53,40 @@ Edit your build system (usually a Makefile), and replace references to
 compatibility, it still accepts the `--mode=compile` options.  But it
 can be smarter.  Let's see why, using a common example:
 
-  $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
+    $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
 
 Stare at that for a second.  Now look at the XKCD comic:
 
   http://xkcd.com/927/
   
-  Panel 1: Situation: There are 14 competing standards.
-  
-  Panel 2: Ridiculous! We need to develop one universal standard
-           that covers everyone's use cases!
-  
-  Panel 3: Situation: There are 15 competing standards.
+    Panel 1: Situation: There are 14 competing standards.
+    
+    Panel 2: Ridiculous! We need to develop one universal standard
+             that covers everyone's use cases!
+    
+    Panel 3: Situation: There are 15 competing standards.
 
 There is a better way.
 
 When you compile `jlibtool`, it knows which C compiler is used.  This
 is done by looking at the `CC` environment variable:
 
-  $ CC=gcc gcc jlibtool.c -o jlibtool
+    $ CC=gcc gcc jlibtool.c -o jlibtool
 
 `jlibtool` remembers the value of `CC`.  It can then use it for your
 builds.  Leave off the redundant `--mode=compile` text.  Asking you to
 remember that is rude.  Just use `CC` as the compiler, instead of
 `$(CC)`.
 
-  $ ./jlibtool CC -c foo.c -o foo.lo
+    $ ./jlibtool CC -c foo.c -o foo.lo
 
 Isn't that nicer?
 
 Even better, make a soft link, and you compilation line will get even
 simpler:
 
-  $ ln -sf jlibtool CC
-  $ ./CC -c foo.c -o foo.lo
+    $ ln -sf jlibtool CC
+    $ ./CC -c foo.c -o foo.lo
 
 `jlibtool` will look at the name you used to invoke it.  If it's `CC`,
 then it behaves like a compiler.  If it's `LINK`, it behaves like a
