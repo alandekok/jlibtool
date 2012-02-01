@@ -1637,11 +1637,53 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
     return 0;
 }
 
+static char *automode(char *arg, command_t *cmd_data)
+{
+	if (cmd_data->mode != mUnknown) return arg;
+
+	if (strcmp(arg, "CC") == 0) {
+		arg = CC;
+		cmd_data->mode = mCompile;
+
+	} else if (strcmp(arg, "LINK") == 0) {
+		arg = LINK_c;
+		cmd_data->mode = mLink;
+
+	} else if (strcmp(arg, "LINK.c") == 0) {
+		arg = LINK_c;
+		cmd_data->mode = mLink;
+
+	} else if (strcmp(arg, "LINK.cxx") == 0) {
+		arg = LINK_cxx;
+		cmd_data->mode = mLink;
+	}
+	
+	return arg;
+}
+
 static void parse_args(int argc, char *argv[], command_t *cmd_data)
 {
     int a;
-    char *arg;
+    char *arg, *base;
     int argused;
+
+    /*
+     *  We now take a major step past libtool.
+     *
+     *  IF there's no "--mode=...", AND we recognise
+     *  the binary as a "special" name, THEN replace it
+     *  with the correct one, and set the correct mode.
+     */
+    base = jlibtool_basename(argv[0]);
+    arg = automode(base, cmd_data);
+    
+    if (arg != base) {
+	    if (cmd_data->options.debug) {
+		    printf("Adding: %s\n", arg);
+	    }
+	    push_count_chars(cmd_data->arglist, arg);
+	    assert(cmd_data->mode != mUnknown);
+    }
 
     for (a = 1; a < argc; a++) {
         arg = argv[a];
@@ -1707,27 +1749,13 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
 
         if (!argused) {
 		/*
-		 *  We now take a major step past libtool.
-		 *
-		 *  IF there's no "--mode=...", AND we recognise
-		 *  the binary as a "special" name, THEN replace it
-		 *  with the correct one, and set the correct mode.
+		 *  If we still don't have a run mode, look for a magic
+		 *  program name CC, LINK, or whatever.  Then replace that
+		 *  with the name of the real program we want to run.
 		 */
 		if ((cmd_data->arglist->num == 0) &&
 		    (cmd_data->mode == mUnknown)) {
-			if (strcmp(arg, "CC") == 0) {
-				arg = CC;
-				cmd_data->mode = mCompile;
-			} else if (strcmp(arg, "LINK.c") == 0) {
-					arg = LINK_c;
-					cmd_data->mode = mLink;
-			} else if (strcmp(arg, "LINK") == 0) {
-					arg = LINK_c;
-					cmd_data->mode = mLink;
-			} else if (strcmp(arg, "LINK.cxx") == 0) {
-				arg = LINK_cxx;
-				cmd_data->mode = mLink;
-			}
+			arg = automode(arg, cmd_data);
 		}
 
             if (cmd_data->options.debug) {
