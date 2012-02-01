@@ -1,3 +1,5 @@
 jlibtool
-jlibtool.o
+*.la
+*.o
+*.lo
 *~
