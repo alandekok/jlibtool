@@ -647,6 +647,11 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
     } else if (strcmp(var, "debug") == 0) {
         cmd_data->options.debug = 1;
     } else if (strcmp(var, "mode") == 0) {
+	if (cmd_data->mode != mUnknown) {
+		fprintf(stderr, "Cannot set --mode twice\n");
+		exit(1);
+	}
+
         if (strcmp(value, "compile") == 0) {
             cmd_data->mode = mCompile;
             cmd_data->output = otObject;
