@@ -1894,7 +1894,8 @@ static void link_fixup(command_t *c)
         else {
             char *tmp;
             push_count_chars(c->shared_opts.normal, c->shared_name.normal);
-#ifdef DYNAMIC_INSTALL_NAME
+#if 0
+	    /* really #ifdef DYNAMIC_INSTALL_NAME */
             push_count_chars(c->shared_opts.normal, DYNAMIC_INSTALL_NAME);
 
             tmp = (char*)malloc(PATH_MAX);
