@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings
 all: jlibtool libexample.la libexample2.la libexample3.la
 
 clean:
-	rm -f jlibtool .la *.o *.lo *~ example2.c example3.c CC LINK
+	rm -f jlibtool *.la *.o *.lo *~ example2.c example3.c CC LINK
 	rm -rf .libs
 
 jlibtool: jlibtool.c
