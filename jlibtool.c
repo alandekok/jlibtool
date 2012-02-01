@@ -497,6 +497,8 @@ static char *shell_esc(const char *str)
 
 static int external_spawn(command_t *cmd, const char *file, const char **argv)
 {
+    file = file;		/* -Wunused */
+
     if (!cmd->options.silent) {
         const char **argument = argv;
         printf("Executing: ");
@@ -553,7 +555,7 @@ static int run_command(command_t *cmd_data, count_chars *cc)
     spawn_args[1] = "-c";
     spawn_args[2] = command;
     spawn_args[3] = NULL;
-    return external_spawn(cmd_data, spawn_args[0], (const char**)spawn_args);
+    return external_spawn(cmd_data, spawn_args[0], spawn_args);
 }
 
 /*
@@ -616,6 +618,8 @@ static void add_runtimedirlib(char *arg, command_t *cmd_data)
 #ifdef RPATH
     add_rpath(cmd_data->shared_opts.dependencies, arg);
 #else
+    arg = arg;			/* -Wunused */
+    cmd_data = cmd_data;
 #endif
 }
 
@@ -1906,7 +1910,7 @@ static void post_parse_fixup(command_t *cmd_data)
         break;
     }
 
-#if USE_OMF
+#ifdef USE_OMF
     if (cmd_data->output == otObject ||
         cmd_data->output == otProgram ||
         cmd_data->output == otLibrary ||
