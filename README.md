@@ -29,7 +29,7 @@ If you don't have `make`, use the following command:
 
     $ cc jlibtool.c -o jlibtool
 
-If you don't have a working C compiler, use libtool.
+If you don't have a working C compiler, don't use jlibtool.
 
 ## Portability
 
@@ -49,7 +49,7 @@ Edit your build system (usually a Makefile), and replace references to
 
 ### Even Better Usage
 
-`jlibtool` is smarter than `libtool` in some situations.  For
+Jlibtool is smarter than libtool in some situations.  For
 compatibility, it still accepts the `--mode=compile` options.  But it
 can be smarter.  Let's see why, using a common example:
 
@@ -68,13 +68,14 @@ Stare at that for a second.  Now look at the XKCD comic:
 
 There is a better way.
 
-When you compile `jlibtool`, it knows which C compiler is used.  This
+When you compile jlibtool, it knows which C compiler is used.  This
 is done by looking at the `CC` environment variable:
 
     $ CC=gcc gcc jlibtool.c -o jlibtool
 
-`jlibtool` remembers the value of `CC`.  It can then use it for your
-builds.  Leave off the redundant `--mode=compile` text.  Asking you to
+The value of `CC` is built into the jlibtool binary.  It can then be
+used for subsequent builds.  This means that the redundant
+`--mode=compile` text is unnecessary.  Asking the developer to
 remember that is rude.  Just use `CC` as the compiler, instead of
 `$(CC)`.
 
@@ -82,30 +83,36 @@ remember that is rude.  Just use `CC` as the compiler, instead of
 
 Isn't that nicer?
 
-Even better, make a soft link, and you compilation line will get even
-simpler:
+Even better, make a soft link with a descriptive name:
 
     $ ln -sf jlibtool CC
+
+The compile command will get even simpler:
+
     $ ./CC -c foo.c -o foo.lo
 
-`jlibtool` will look at the name you used to invoke it.  If it's `CC`,
-then it behaves like a compiler.  If it's `LINK`, it behaves like a
-(C) linker.  The special names `LINK.c` and `LINK.cxx` behave as
-expected, too.
+Isn't that nice?  All of the `libtool --mode=compile` nonsense is
+hidden.  It is implied by the name.  The program figures it out, so
+that you don't have to remember it.
 
-I've switched a number of build systems to using the new `jlibtool`.
-All of the platform-specific magic is hidden inside of it.  The build
-systems aren't littered with references to `libtool` and hordes of
+This works because jlibtool looks at the name you used to invoke it.
+If the name is `CC`, then it acts as a C compiler.  If the name is
+`LINK`, it behaves like a (C) linker.  The special names `LINK.c` and
+`LINK.cxx` behave as expected, too.
+
+I've switched a number of build systems to using jlibtool.  All of the
+platform-specific magic is hidden inside of it.  The build systems
+aren't littered with references to `libtool` and hordes of
 libtool-specific command-line arguments.  This means your build system
 is much simpler, and more understandable.
 
 ## Limitations
 
-That being said, jlibtool is not a "drop in" replacement for libtool.
-Libtool has many features, and has been under development for many
-years.  Libtool is intended to solve portability problems for dozens
-of esoteric operating systems and compilers, many of which no longer
-have net access.  The result is that users of libtool are being
+The sad thing is that jlibtool is _not_ a "drop in" replacement for
+libtool.  Libtool has many features, and has been under development
+for many years.  Libtool is intended to solve portability problems for
+dozens of esoteric operating systems and compilers, many of which no
+longer have net access.  The result is that users of libtool are being
 punished with slow build times for the mistakes that others made
 decades ago.
 
@@ -125,18 +132,20 @@ times.
 
 # Install
 
-Don't.  Ever.
+Don't install it.  Ever.
 
 Installing build tools is a bad idea.
 
 Jlibtool is small enough (~60K) that it can be included in the
 distribution archive of your software.  Doing so has the added benefit
-that you _know_ the functionality of jlibtool, and that you _know_
-that it works.
+that you _know_ the functionality of jlibtool, and that you _know_ it
+works.
 
-Many cross-platorm build problems with large projects have been traced
-to using an installed version of build tools (libtool, libltdl, etc.),
-instead of using a version shipped with the project.
+Many cross-platform build problems with large projects have been
+traced to using an installed version of build tools (libtool, libltdl,
+etc.), instead of using a version shipped with the project.  The
+solution to these problems is to _always_ use local build tools, and
+to _never_ install those build tools.
 
 Jlibtool is a tool to help build your project on a variety of
 platforms.  It is _not_ a tool to help other people on those platforms
@@ -145,9 +154,9 @@ they know what they're doing.
 
 # Compatibility
 
-Jlibtool is _mostly_ compatible with libtool.  It accepts many of the
-same comman-line arguments as jlibtool, and behaves largely in the
-same way.  See `jlibtool --help` for specific details.
+Jlibtool is _mostly_ compatible with libtool.  It accepts many of
+the same command-line arguments as libtool, and behaves largely in
+the same way.  See `jlibtool --help` for specific details.
 
 If your project uses libltdl, then jlibtool may not be for you.  There
 is a magic relationship between those two programs that jlibtool does
