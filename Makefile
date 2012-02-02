@@ -1,14 +1,23 @@
-CFLAGS = -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -W -Wredundant-decls -Wundef
+CFLAGS = -g -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -W -Wredundant-decls -Wundef
 
 .PHONY: all clean
-all: jlibtool libexample.la libexample2.la libexample3.la
+all: build-tools libexample.la libexample2.la libexample3.la
 
 clean:
 	rm -f jlibtool *.la *.o *.lo *~ example2.c example3.c CC LINK
 	rm -rf .libs
 
+build-tools: jlibtool CC LINK
+
+CC LINK: jlibtool
+	ln -sf $< $@
+
 jlibtool: jlibtool.c
 
+######################################################################
+#
+#  The first example.  You can use jlibtool just like libtool.
+#
 example.lo: jlibtool example.c
 	./jlibtool --mode=compile $(CC) -c example.c -o $@
 
@@ -38,9 +47,6 @@ libexample2.la: example2.lo
 #  Even better, create a soft link named CC to jlibtool.  It will
 #  figure out what to run as above, but with fewer command-line
 #  arguments.
-
-CC LINK: jlibtool
-	ln -sf $< $@
 
 example3.c: example.c
 	ln -sf $< $@
