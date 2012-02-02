@@ -238,8 +238,8 @@ enum shared_mode_e {
 
 enum lib_type {
     type_UNKNOWN,
-    type_DYNAMIC_LIB,
     type_STATIC_LIB,
+    type_DYNAMIC_LIB,
     type_MODULE_LIB,
     type_OBJECT,
 };
@@ -925,22 +925,17 @@ static void add_dotlibs(char *buffer)
 	memcpy(name, ".libs/", 6);
 }
 
-/* genlib values
- * 0 - static
- * 1 - dynamic
- * 2 - module
- */
-static char *gen_library_name(const char *name, int genlib)
+static char *gen_library_name(const char *name, enum lib_type genlib)
 {
     char *newarg, *newext;
 
     newarg = (char *)malloc(strlen(name) + 11);
 
-    if (genlib == 2 && strncmp(name, "lib", 3) == 0) {
+    if (genlib == type_MODULE_LIB && strncmp(name, "lib", 3) == 0) {
         name += 3;
     }
 
-    if (genlib == 2) {
+    if (genlib == type_MODULE_LIB) {
         strcat(newarg, jlibtool_basename(name));
     }
     else {
@@ -950,14 +945,17 @@ static char *gen_library_name(const char *name, int genlib)
     newext = strrchr(newarg, '.') + 1;
 
     switch (genlib) {
-    case 0:
+    case type_STATIC_LIB:
         strcpy(newext, STATIC_LIB_EXT);
         break;
-    case 1:
+    case type_DYNAMIC_LIB:
         strcpy(newext, DYNAMIC_LIB_EXT);
         break;
-    case 2:
+    case type_MODULE_LIB:
         strcpy(newext, MODULE_LIB_EXT);
+        break;
+
+    default:
         break;
     }
 
@@ -966,12 +964,7 @@ static char *gen_library_name(const char *name, int genlib)
     return newarg;
 }
 
-/* genlib values
- * 0 - static
- * 1 - dynamic
- * 2 - module
- */
-static char *gen_install_name(const char *name, int genlib)
+static char *gen_install_name(const char *name, enum lib_type genlib)
 {
     struct stat sb;
     char *newname;
@@ -1593,12 +1586,12 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         assert(cmd_data->mode == mLink);
 
         cmd_data->basename = arg;
-        cmd_data->static_name.normal = gen_library_name(arg, 0);
-        cmd_data->shared_name.normal = gen_library_name(arg, 1);
-        cmd_data->module_name.normal = gen_library_name(arg, 2);
-        cmd_data->static_name.install = gen_install_name(arg, 0);
-        cmd_data->shared_name.install = gen_install_name(arg, 1);
-        cmd_data->module_name.install = gen_install_name(arg, 2);
+        cmd_data->static_name.normal = gen_library_name(arg, type_STATIC_LIB);
+        cmd_data->shared_name.normal = gen_library_name(arg, type_DYNAMIC_LIB);
+        cmd_data->module_name.normal = gen_library_name(arg, type_MODULE_LIB);
+        cmd_data->static_name.install = gen_install_name(arg, type_STATIC_LIB);
+        cmd_data->shared_name.install = gen_install_name(arg, type_DYNAMIC_LIB);
+        cmd_data->module_name.install = gen_install_name(arg, type_MODULE_LIB);
 
         if (!cmd_data->options.dry_run) {
 		char *newname;
