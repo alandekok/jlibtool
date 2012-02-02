@@ -741,6 +741,10 @@ static int parse_short_opt(char *arg, command_t *cmd_data)
     }
 
     if (strcmp(arg, "static") == 0) {
+       if ((cmd_data->mode == mLink) &&
+	  (cmd_data->output == otLibrary)) {
+            cmd_data->output = otStaticLibraryOnly;
+	}
         cmd_data->options.shared = share_STATIC;
         return 1;
     }
