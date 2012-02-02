@@ -1624,6 +1624,36 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         return 1;
     }
 
+    if (strcmp(ext, STATIC_LIB_EXT) == 0) {
+        assert(cmd_data->mode == mLink);
+
+        cmd_data->basename = arg;
+	cmd_data->options.shared = share_STATIC;
+	cmd_data->output = otStaticLibraryOnly;
+        cmd_data->static_name.normal = gen_library_name(arg, type_STATIC_LIB);
+        cmd_data->static_name.install = gen_install_name(arg, type_STATIC_LIB);
+
+        if (!cmd_data->options.dry_run) {
+		char *newname;
+		char *newext;
+		newname = malloc(strlen(cmd_data->static_name.normal) + 1);
+
+		strcpy(newname, cmd_data->static_name.normal);
+		newext = strrchr(newname, '/');
+		if (!newext) {
+			/* Check first to see if the dir already exists! */
+			safe_mkdir(".libs");
+		} else {
+			*newext = '\0';
+			safe_mkdir(newname);
+		}
+		free(newname);
+        }
+
+        cmd_data->output_name = arg;
+        return 1;
+    }
+
     if (strcmp(ext, "lo") == 0) {
         char *newext;
         cmd_data->basename = arg;
