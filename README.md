@@ -81,8 +81,6 @@ remember that is rude.  Just use `CC` as the compiler, instead of
 
     $ ./jlibtool CC -c foo.c -o foo.lo
 
-Isn't that nicer?
-
 Even better, make a soft link with a descriptive name:
 
     $ ln -sf jlibtool CC
@@ -91,9 +89,10 @@ The compile command will get even simpler:
 
     $ ./CC -c foo.c -o foo.lo
 
-Isn't that nice?  All of the `libtool --mode=compile` nonsense is
-hidden.  It is implied by the name.  The program figures it out, so
-that you don't have to remember it.
+That looks a lot better than the libtool versoin.  All of redundant
+text of `libtool --mode=compile` is hidden.  It is implied by the
+name.  The program figures it out, so that you don't have to remember
+it.
 
 This works because jlibtool looks at the name you used to invoke it.
 If the name is `CC`, then it acts as a C compiler.  If the name is
@@ -160,7 +159,8 @@ the same way.  See `jlibtool --help` for specific details.
 
 If your project uses libltdl, then jlibtool may not be for you.  There
 is a magic relationship between those two programs that jlibtool does
-not try to emulate.
+not try to emulate.  If your program requires static linking of
+modules, then libtool and libltdl are for you.
 
 However, you should probably change your project to use the normal
 `dlopen()` APIs.  As of 2012, all modern Posix systems support the
@@ -171,6 +171,10 @@ replacement library available at:
 
 It is smaller than libltdl (~10K versus ~250K), and does not require
 integration with libtool.
+
+Similar comments apply to static linking.  There are few reasons any
+more to statically link a binary, and have the binary use a `dlopen()`
+style API to load modules.  Just use dynamic libaries.
 
 # Issues
 
@@ -208,6 +212,7 @@ list is given here:
   * "." in "./foo" doesn't signify an extension like it does in "foo.a"
 * Use "static" in more places, and remove compiler warnings
 * Add --debug parameter to simplify the output
+* Added automatic detection of mode via magic programs CC, or magic names CC.
 
 # Libtool and libltld: Just Say No
 
