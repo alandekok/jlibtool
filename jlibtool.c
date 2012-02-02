@@ -1654,6 +1654,38 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         return 1;
     }
 
+    if (strcmp(ext, DYNAMIC_LIB_EXT) == 0) {
+        assert(cmd_data->mode == mLink);
+
+        cmd_data->basename = arg;
+	cmd_data->options.shared = share_SHARED;
+	cmd_data->output = otDynamicLibraryOnly;
+        cmd_data->shared_name.normal = gen_library_name(arg, type_DYNAMIC_LIB);
+        cmd_data->module_name.normal = gen_library_name(arg, type_MODULE_LIB);
+        cmd_data->shared_name.install = gen_install_name(arg, type_DYNAMIC_LIB);
+        cmd_data->module_name.install = gen_install_name(arg, type_MODULE_LIB);
+
+        if (!cmd_data->options.dry_run) {
+		char *newname;
+		char *newext;
+		newname = malloc(strlen(cmd_data->shared_name.normal) + 1);
+
+		strcpy(newname, cmd_data->shared_name.normal);
+		newext = strrchr(newname, '/');
+		if (!newext) {
+			/* Check first to see if the dir already exists! */
+			safe_mkdir(".libs");
+		} else {
+			*newext = '\0';
+			safe_mkdir(newname);
+		}
+		free(newname);
+        }
+
+        cmd_data->output_name = arg;
+        return 1;
+    }
+
     if (strcmp(ext, "lo") == 0) {
         char *newext;
         cmd_data->basename = arg;
