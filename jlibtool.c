@@ -172,6 +172,10 @@
 #define CC "gcc"
 #endif
 
+#ifndef CXX
+#define CXX "g++"
+#endif
+
 #ifndef LINK_c
 #define LINK_c "gcc"
 #endif
@@ -1719,6 +1723,10 @@ static char *automode(char *arg, command_t *cmd_data)
 
 	if (strcmp(arg, "CC") == 0) {
 		arg = CC;
+		cmd_data->mode = mCompile;
+
+	if (strcmp(arg, "CXX") == 0) {
+		arg = CXX;
 		cmd_data->mode = mCompile;
 
 	} else if (strcmp(arg, "LINK") == 0) {
