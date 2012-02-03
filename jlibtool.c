@@ -1761,6 +1761,57 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
 	    assert(cmd_data->mode != mUnknown);
     }
 
+    /*
+     *	We first pass over the command-line arguments looking for
+     *  "--mode", etc.  If so, then use the libtool compatibility
+     *  method for building the software.  Otherwise, auto-detect it
+     *  via "-o" and the extensions.
+     */
+    base = NULL;
+    if (cmd_data->mode == mUnknown) for (a = 1; a < argc; a++) {
+        arg = argv[a];
+
+	if (strncmp(arg, "--mode=", 7) == 0) {
+	  base = NULL;
+	  break;
+	}
+
+	if (strncmp(arg, "-o", 2) == 0) {
+	  base = argv[++a];
+	}
+    }
+
+    if (base) {
+	    arg = strrchr(base, '.');
+	    if (!arg) {
+		    cmd_data->mode = mLink;
+		    push_count_chars(cmd_data->arglist, LINK_c);
+	    }
+#ifdef EXE_EXT
+	    else if (strcmp(arg, EXE_EXT) == 0) {
+		    cmd_data->mode = mLink;
+		    push_count_chars(cmd_data->arglist, LINK_c);
+	    }
+#endif
+	    else if (strcmp(arg + 1, DYNAMIC_LIB_EXT) == 0) {
+		    cmd_data->mode = mLink;
+		    push_count_chars(cmd_data->arglist, LINK_c);
+	    }
+	    else if (strcmp(arg + 1, STATIC_LIB_EXT) == 0) {
+		    cmd_data->mode = mLink;
+		    push_count_chars(cmd_data->arglist, LINK_c);
+	    }
+	    else if (strcmp(arg + 1, "la") == 0) {
+		    cmd_data->mode = mLink;
+		    push_count_chars(cmd_data->arglist, LINK_c);
+	    }
+	    else if ((strcmp(arg + 1, "lo") == 0) ||
+		     (strcmp(arg + 1, "o") == 0)) {
+		    cmd_data->mode = mCompile;
+		    push_count_chars(cmd_data->arglist, CC);
+	    }
+    }
+
     for (a = 1; a < argc; a++) {
         arg = argv[a];
         argused = 1;
