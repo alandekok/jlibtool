@@ -68,16 +68,15 @@ Stare at that for a second.  Now look at the XKCD comic:
 
 There is a better way.
 
-When you compile jlibtool, it knows which C compiler is used.  This
-is done by looking at the `CC` environment variable:
+When you compile jlibtool, it knows which C compiler is used.  This is
+done by looking at the `CC` environment variable.  If none is set,
+then `gcc` is assumed.
 
     $ CC=gcc gcc jlibtool.c -o jlibtool
 
 The value of `CC` is built into the jlibtool binary.  It can then be
-used for subsequent builds.  This means that the redundant
-`--mode=compile` text is unnecessary.  Asking the developer to
-remember that is rude.  Just use `CC` as the compiler, instead of
-`$(CC)`:
+referenced when you run jlibtool, by specified the "special" command
+`CC`:
 
     $ ./jlibtool CC -c foo.c -o foo.lo
 
@@ -91,7 +90,8 @@ you don't have to pass the name:
     $ ./CC -c foo.c -o foo.lo
 
 That is a minor bit of functionality which makes your build system a
-little bit cleaner.
+little bit cleaner.  I personally find it easier to read `CC` instead
+of `libtool --mode=compile $(CC)`.
 
 If your program is only C code, then you don't even need to do that
 much.  Just run jlibtool by itself:
@@ -113,10 +113,11 @@ dynamic library.  When used this way, all of redundancy of `libtool
 --mode=compile` is avoided.  The operation mode is implied by the
 name.
 
-The program just Does the Right Thing.  All you need to do is to tell
-jlibtool "build me a `.so` file", and all of the magic is taken care
-of.  There is no need to remember even _more_ magic command-line
-arguments to a new tool that "helps" with portability.
+The goal is for jlibtool to just Do the Right Thing.  All you need to
+do is to tell it to "build me a `.so` file", and all of the
+platform-specific directives are taken care of.  There is no need to
+remember even _more_ magic command-line arguments to a new tool that
+"helps" with portability.
 
 Jlibtool has been used in a number of build systems.  All of the
 platform-specific magic is hidden inside of the jlibtool binary.  The
