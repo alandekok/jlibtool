@@ -77,33 +77,52 @@ The value of `CC` is built into the jlibtool binary.  It can then be
 used for subsequent builds.  This means that the redundant
 `--mode=compile` text is unnecessary.  Asking the developer to
 remember that is rude.  Just use `CC` as the compiler, instead of
-`$(CC)`.
+`$(CC)`:
 
     $ ./jlibtool CC -c foo.c -o foo.lo
 
-Even better, make a soft link with a descriptive name:
+If the name is `CC`, then it acts as a C compiler.  If the name is
+`CXX`, then it acts as a C++ compiler.  If the name is `LINK`, it
+behaves like a (C) linker.  The special names `LINK.c` and `LINK.cxx`
+behave as C and C++ linkers.  You can also create a soft link so that
+you don't have to pass the name:
 
     $ ln -sf jlibtool CC
-
-The compile command will get even simpler:
-
     $ ./CC -c foo.c -o foo.lo
 
-That looks a lot better than the libtool versoin.  All of redundant
-text of `libtool --mode=compile` is hidden.  It is implied by the
-name.  The program figures it out, so that you don't have to remember
-it.
+That is a minor bit of functionality which makes your build system a
+little bit cleaner.
 
-This works because jlibtool looks at the name you used to invoke it.
-If the name is `CC`, then it acts as a C compiler.  If the name is
-`LINK`, it behaves like a (C) linker.  The special names `LINK.c` and
-`LINK.cxx` behave as expected, too.
+If your program is only C code, then you don't even need to do that
+much.  Just run jlibtool by itself:
 
-I've switched a number of build systems to using jlibtool.  All of the
-platform-specific magic is hidden inside of it.  The build systems
-aren't littered with references to `libtool` and hordes of
-libtool-specific command-line arguments.  This means your build system
-is much simpler, and more understandable.
+    $ ./jlibtool -c foo.c -o foo.lo
+
+The output is a "lo" file, so it knows to run the C compiler.  The
+same automatic output mode is done for other extensions, too:
+
+    $ ./jlibtool -o foo ...
+    $ ./jlibtool -o foo.a foo.lo bar.lo
+    $ ./jlibtool -o libfoo.la foo.lo bar.lo
+    $ ./jlibtool -o libfoo.so foo.lo bar.lo
+    $ ./jlibtool -o libfoo.dylib foo.lo bar.lo
+
+Creates (respectively) an executable, a static libary, a "libtool"
+dynamic library, a Linux/BSD dynamic library, and finally a Mac OSX
+dynamic library.  When used this way, all of redundancy of `libtool
+--mode=compile` is avoided.  The operation mode is implied by the
+name.
+
+The program just Does the Right Thing.  All you need to do is to tell
+jlibtool "build me a `.so` file", and all of the magic is taken care
+of.  There is no need to remember even _more_ magic command-line
+arguments to a new tool that "helps" with portability.
+
+Jlibtool has been used in a number of build systems.  All of the
+platform-specific magic is hidden inside of the jlibtool binary.  The
+build systems aren't littered with references to `libtool` and hordes
+of libtool-specific command-line arguments.  This means your build
+system is much simpler, and more understandable.
 
 ## Limitations
 
