@@ -1725,7 +1725,7 @@ static char *automode(char *arg, command_t *cmd_data)
 		arg = CC;
 		cmd_data->mode = mCompile;
 
-	if (strcmp(arg, "CXX") == 0) {
+	} else if (strcmp(arg, "CXX") == 0) {
 		arg = CXX;
 		cmd_data->mode = mCompile;
 
