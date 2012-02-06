@@ -1044,7 +1044,8 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
                            int libdircheck, enum lib_type *libtype)
 {
     char *newarg, *ext;
-    int pass, rv, newpathlen;
+    int rv, newpathlen;
+    enum lib_type pass;
 
     newarg = (char *)malloc(strlen(arg) + 10);
     strcpy(newarg, arg);
@@ -1059,32 +1060,32 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
     strcpy(newarg+newpathlen, arg+pathlen);
     ext = strrchr(newarg, '.') + 1;
 
-    pass = 0;
+    pass = type_UNKNOWN;
 
     do {
         struct stat sb;
 
         switch (pass) {
-        case 0:
+        case type_UNKNOWN:
             if (cmd->options.pic_mode != pic_AVOID &&
                 cmd->options.shared != share_STATIC) {
                 strcpy(ext, DYNAMIC_LIB_EXT);
                 *libtype = type_DYNAMIC_LIB;
                 break;
             }
-            pass = 1;
+            pass = type_STATIC_LIB;
             /* Fall through */
-        case 1:
+        case type_STATIC_LIB:
             strcpy(ext, STATIC_LIB_EXT);
-            *libtype = type_STATIC_LIB;
+            *libtype = pass;
             break;
-        case 2:
+        case type_MODULE_LIB:
             strcpy(ext, MODULE_LIB_EXT);
-            *libtype = type_MODULE_LIB;
+            *libtype = pass;
             break;
-        case 3:
+        case type_OBJECT:
             strcpy(ext, OBJECT_EXT);
-            *libtype = type_OBJECT;
+            *libtype = pass;
             break;
         default:
             *libtype = type_UNKNOWN;
