@@ -189,6 +189,7 @@
 #endif
 
 #define OBJDIR ".libs"
+#define OBJDIRp OBJDIR "/"
 
 #ifndef SHELL_CMD
 #error Unsupported platform: Please add defines for SHELL_CMD etc. for your platform.
@@ -922,15 +923,15 @@ static void add_dotlibs(char *buffer)
 
 	if (!name) {
 		if (!buffer[0]) {
-			strcpy(buffer, ".libs/");
+			strcpy(buffer, OBJDIRp);
 			return;
 		}
 		name = buffer;
 	} else {
 		name++;
 	}
-	memmove(name + 6, name, strlen(name));
-	memcpy(name, ".libs/", 6);
+	memmove(name + sizeof(OBJDIRp) - 1, name, strlen(name));
+	memcpy(name, OBJDIRp, sizeof(OBJDIRp) - 1);
 }
 
 static char *gen_library_name(const char *name, enum lib_type genlib)
@@ -1052,7 +1053,7 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
     newpathlen = pathlen;
     if (libdircheck) {
         add_dotlibs(newarg);
-        newpathlen += sizeof(".libs/") - 1;
+        newpathlen += sizeof(OBJDIRp) - 1;
     }
 
     strcpy(newarg+newpathlen, arg+pathlen);
@@ -1139,8 +1140,8 @@ static char * load_noinstall_path(const char *arg, int pathlen)
     newarg[pathlen] = 0;
 
     newpathlen = pathlen;
-    strcat(newarg, ".libs");
-    newpathlen += sizeof(".libs") - 1;
+    strcat(newarg, OBJDIR);
+    newpathlen += sizeof(OBJDIR) - 1;
     newarg[newpathlen] = 0;
 
 #ifdef HAS_REALPATH
@@ -1352,7 +1353,7 @@ static int explode_static_lib(command_t *cmd_data, const char *lib)
     name = jlibtool_basename(lib);
 
     init_count_chars(&tmpdir_cc);
-    push_count_chars(&tmpdir_cc, ".libs/");
+    push_count_chars(&tmpdir_cc, OBJDIRp);
     push_count_chars(&tmpdir_cc, name);
     push_count_chars(&tmpdir_cc, ".exploded/");
     tmpdir = flatten_count_chars(&tmpdir_cc, 0);
@@ -1610,7 +1611,7 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
 		newext = strrchr(newname, '/');
 		if (!newext) {
 			/* Check first to see if the dir already exists! */
-			safe_mkdir(".libs");
+			safe_mkdir(OBJDIR);
 		} else {
 			*newext = '\0';
 			safe_mkdir(newname);
@@ -1646,7 +1647,7 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
 		newext = strrchr(newname, '/');
 		if (!newext) {
 			/* Check first to see if the dir already exists! */
-			safe_mkdir(".libs");
+			safe_mkdir(OBJDIR);
 		} else {
 			*newext = '\0';
 			safe_mkdir(newname);
@@ -1678,7 +1679,7 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
 		newext = strrchr(newname, '/');
 		if (!newext) {
 			/* Check first to see if the dir already exists! */
-			safe_mkdir(".libs");
+			safe_mkdir(OBJDIR);
 		} else {
 			*newext = '\0';
 			safe_mkdir(newname);
@@ -1965,7 +1966,7 @@ static void generate_def_file(command_t *cmd_data)
             export_args[num_export_args++] = DEF2IMPLIB_CMD;
             export_args[num_export_args++] = "-o";
 
-            strcpy(implib_file, ".libs/");
+            strcpy(implib_file, OBJDIRp);
             strcat(implib_file, cmd_data->basename);
             ext = strrchr(implib_file, '.');
 
@@ -2282,7 +2283,7 @@ static int run_mode(command_t *cmd_data)
 	    *l = '\0';
 	    l = libpath;
 	} else {
-	    l = ".libs/";
+	    l = OBJDIRp;
 	}
 
 	setenv(LD_LIBRARY_PATH_LOCAL, l, 1);
