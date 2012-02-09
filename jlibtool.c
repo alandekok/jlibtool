@@ -1769,6 +1769,8 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
 	    }
 	    push_count_chars(cmd_data->arglist, arg);
 	    assert(cmd_data->mode != mUnknown);
+
+	    cmd_data->options.silent = 1;
     }
 
     /*
