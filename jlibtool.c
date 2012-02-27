@@ -229,6 +229,12 @@ enum output_t {
     otModule,
 };
 
+enum input_t {
+    inGeneral,
+    inObject,
+    inCfile
+};
+
 enum pic_mode_e {
     pic_UNKNOWN,
     pic_PREFER,
@@ -279,6 +285,7 @@ typedef struct {
 typedef struct {
     enum tool_mode_t mode;
     enum output_t output;
+    enum input_t input;
     options_t options;
 
     char *output_name;
@@ -1551,6 +1558,8 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
                 cmd_data->fake_output_name = cmd_data->basename;
             }
         }
+
+	cmd_data->input = inCfile;
     }
 
     return 0;
@@ -1752,6 +1761,7 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
     int a;
     char *arg, *base;
     int argused;
+    int dashc = 0;
 
     /*
      *  We now take a major step past libtool.
@@ -1853,6 +1863,10 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
                 if (arg[1] == 'o' && !arg[2]) {
                     arg = argv[++a];
                     argused = parse_output_file_name(arg, cmd_data);
+
+		} else if (arg[1] == 'c' && !arg[2]) {
+		    dashc = 1;
+
                 } else if (strcmp(arg+1, "MT") == 0) {
                     if (cmd_data->options.debug) {
                         printf("Adding: %s\n", arg);
@@ -1913,6 +1927,11 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
             }
             push_count_chars(cmd_data->arglist, arg);
         }
+    }
+
+    if ((cmd_data->output == otObject) && (cmd_data->input == inCfile) &&
+	!dashc) {
+	    push_count_chars(cmd_data->arglist, "-c");
     }
 
 }
