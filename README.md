@@ -2,7 +2,7 @@
 
 Jlibtool is a replacement for GNU Libtool.  As it is a C program
 rather than a shell script, it is significantly faster than libool.
-This speed difference is very noticable on large projects.
+This speed difference is most noticable on large projects.
 
 ## Origin
 
@@ -11,17 +11,17 @@ Jlibtool was originally taken from the Apache Software Foundation, at:
   http://svn.apache.org/repos/asf/apr/apr/trunk/build/jlibtool.c
 
 it was then modified to fix a number of incompatibilities with GNU
-Libtool.  It has been used to build a large project (100's of C files,
+Libtool.  It has been used to build large projects (100's of C files,
 loadable modules, cross-platform).
 
 ## Build
 
-There is no `configure` script, as none is needed.  There is no
-`Makefile`, as none is needed.  Jlibtool is written using Posix / C
-functions that are available on all modern operating systems.
+There is no `configure` script.  None is needed.  There is no
+`Makefile`.  None is needed.  Jlibtool is written using functions that
+are available on all modern operating systems.
 
-Instead, just use `make`, which is smart enough to figure out how to
-build it:
+Just use `make`, which is smart enough to figure out how to build C
+programs:
 
     $ make
 
@@ -29,15 +29,15 @@ If you don't have `make`, use the following command:
 
     $ cc jlibtool.c -o jlibtool
 
-If you don't have a working C compiler, don't use jlibtool.
+If you have no working C compiler, you don't need jlibtool.
 
 ## Portability
 
-It should build without errors on all Posix compatible operating
-systems.  It will likely also build on Windows, though that has not
-been tried.  If there are build errors on Windows, the patches to fix
-the problem are likely to be small.  Please submit patches, and they
-will be integrated into the next version.
+It should build without errors on all Posix operating systems.  It
+will likely also build on Windows, though that has not been tried.  If
+there are build errors on Windows, the fixes are likely to be small.
+Please submit patches, and they will be integrated into the next
+version.
 
 The source contains compile-time checks for OS/2, Mac OS X, Linux,
 FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.
@@ -45,13 +45,14 @@ FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.
 ## Usage
 
 Edit your build system (usually a Makefile), and replace references to
-"libtool" with "jlibtool".  Many projects will "just work".
+"libtool" with "jlibtool".  Some projects will "just work".
 
-### Even Better Usage
+### Libtool Makes Life Harder
 
-Jlibtool is smarter than libtool in some situations.  For
-compatibility, it still accepts the `--mode=compile` options.  But it
-can be smarter.  Let's see why, using a common example:
+Jlibtool is designed for tha lazy programmer.  For compatibility, it
+still accepts the standard libtool `--mode=compile` options.  But it
+can be smarter.  Let's see why, using an example.  The following line
+is typical of how libtool is used:
 
     $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
 
@@ -66,7 +67,14 @@ Stare at that for a second.  Now look at the XKCD comic:
     
     Panel 3: Situation: There are 15 competing standards.
 
+The "helpful" nature of libtool means that you need to learn _new_
+commands and _new_ command-line options.  These options force you to
+tell libtool things it already knows.  e.g. when running "CC", you are
+really trying to compile a program.
+
 There is a better way.
+
+### There is a Better Way
 
 When you compile jlibtool, it knows which C compiler is used.  This is
 done by looking at the `CC` environment variable.  If none is set,
@@ -83,8 +91,10 @@ referenced when you run jlibtool, by specified the "special" command
 If the name is `CC`, then it acts as a C compiler.  If the name is
 `CXX`, then it acts as a C++ compiler.  If the name is `LINK`, it
 behaves like a (C) linker.  The special names `LINK.c` and `LINK.cxx`
-behave as C and C++ linkers.  You can also create a soft link so that
-you don't have to pass the name:
+behave as C and C++ linkers.
+
+You can also create a symlink from these names to jlibtool.  When you
+build using the "CC" program, jlibtool _just figures it out_.
 
     $ ln -sf jlibtool CC
     $ ./CC -c foo.c -o foo.lo
@@ -93,13 +103,25 @@ That is a minor bit of functionality which makes your build system a
 little bit cleaner.  I personally find it easier to read `CC` instead
 of `libtool --mode=compile $(CC)`.
 
-If your program is only C code, then you don't even need to do that
-much.  Just run jlibtool by itself:
+### For the Absolutely Lay
 
-    $ ./jlibtool -c foo.c -o foo.lo
+You can avoid the above complexity entirely.  Just run jlibtool by
+itself:
 
-The output is a "lo" file, so it knows to run the C compiler.  The
-same automatic output mode is done for other extensions, too:
+    $ ./jlibtool foo.c -o foo.lo
+
+The output is a `lo` file, so it knows to run the C compiler.  The
+input is a `c` file, so it knows to run the C compiler.  The output is
+a `lo` file, it knows to pass the `-c` option to the C compiler.
+
+The decisions made by jlibtool can rarely go wrong.  In most cases,
+there is only one choice for what to do.  And that choice is obvious.
+Where the decision might be wrong, you can just specify `CC` or even
+`--mode=...` yourself.  jlibtool is smart enough to get things done
+for you.  It's also smart enough to get out of your way when you know
+better.
+
+The same decisions are made for other extensions, too:
 
     $ ./jlibtool -o foo ...
     $ ./jlibtool -o foo.a foo.lo bar.lo
@@ -107,11 +129,11 @@ same automatic output mode is done for other extensions, too:
     $ ./jlibtool -o libfoo.so foo.lo bar.lo
     $ ./jlibtool -o libfoo.dylib foo.lo bar.lo
 
-Creates (respectively) an executable, a static libary, a "libtool"
-dynamic library, a Linux/BSD dynamic library, and finally a Mac OSX
-dynamic library.  When used this way, all of redundancy of `libtool
---mode=compile` is avoided.  The operation mode is implied by the
-name.
+These commans create (respectively) an executable, a static libary, a
+"libtool" dynamic library, a Linux/BSD dynamic library, and finally a
+Mac OSX dynamic library.  When used this way, all of redundancy of
+`libtool --mode=compile` is avoided.  The operation mode is implied by
+the names of the inputs and outputs.
 
 The goal is for jlibtool to just Do the Right Thing.  All you need to
 do is to tell it to "build me a `.so` file", and all of the
@@ -193,8 +215,8 @@ It is smaller than libltdl (~10K versus ~250K), and does not require
 integration with libtool.
 
 Similar comments apply to static linking.  There are few reasons any
-more to statically link a binary, and have the binary use a `dlopen()`
-style API to load modules.  Just use dynamic libaries.
+more to statically link a binary, and then use `dlopen()` to load
+modules.  Just use dynamic libaries.
 
 # Issues
 
