@@ -220,7 +220,7 @@ enum tool_mode_t {
 };
 
 enum output_t {
-    otGeneral,
+    otUnknown,
     otObject,
     otProgram,
     otLibrary,
@@ -683,7 +683,7 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
 	}
     } else if (strcmp(var, "shared") == 0) {
       if ((cmd_data->mode == mLink) &&
-	  (cmd_data->output == otGeneral)) {
+	  (cmd_data->output == otUnknown)) {
             cmd_data->output = otDynamicLibraryOnly;
 	}
         cmd_data->options.shared = share_SHARED;
@@ -1605,6 +1605,12 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         assert(cmd_data->mode == mLink);
 
         cmd_data->basename = arg;
+	if (cmd_data->options.shared == share_UNSET) {
+	  cmd_data->options.shared = share_SHARED;
+	}
+	if (cmd_data->output == otUnknown) {
+	  cmd_data->output = otLibrary;
+	}
         cmd_data->static_name.normal = gen_library_name(arg, type_STATIC_LIB);
         cmd_data->shared_name.normal = gen_library_name(arg, type_DYNAMIC_LIB);
         cmd_data->module_name.normal = gen_library_name(arg, type_MODULE_LIB);
@@ -1725,6 +1731,10 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
       exit(1);
     }
 
+    if (cmd_data->output == otUnknown) {
+      cmd_data->output = otProgram;
+    }
+    
     return 0;
 }
 
@@ -2422,7 +2432,7 @@ int main(int argc, char *argv[])
     init_count_chars(cmd_data.shared_opts.dependencies);
 
     cmd_data.mode = mUnknown;
-    cmd_data.output = otGeneral;
+    cmd_data.output = otUnknown;
 
     parse_args(argc, argv, &cmd_data);
     post_parse_fixup(&cmd_data);

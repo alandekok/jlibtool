@@ -19,10 +19,10 @@ jlibtool: jlibtool.c
 #  The first example.  You can use jlibtool just like libtool.
 #
 example.lo: jlibtool example.c
-	./jlibtool --mode=compile $(CC) -c example.c -o $@
+	./jlibtool --mode=compile $(CC) example.c -o $@
 
 libexample.la: example.lo
-	./jlibtool --mode=link $(CC) -shared -o $@ $^
+	./jlibtool --mode=link $(CC) -shared -rpath /usr/local/lib -o $@ $^
 
 ######################################################################
 #
@@ -60,3 +60,31 @@ libexample3.la: LINK
 
 libexample3.la: example3.lo
 	./LINK -shared -o $@ $<
+
+#####
+
+example4.c: example.c
+	ln -sf $< $@
+
+example4.lo: CC
+
+example4.lo: example4.c
+	./CC -c $< -o -c $@
+
+libexample4.a: LINK
+
+libexample4.a: example4.lo
+	./LINK -o $@ $<
+
+libexample4.la: LINK
+
+libexample4.la: example4.lo
+	./jlibtool -o libexample.dylib  $<
+
+main.lo: jlibtool
+
+main: main.lo libexample.la
+	./jlibtool -o $@ -rpath /usr/local/lib libexample.la  $< 
+
+main.lo: main.c
+	./jlibtool -o $@ -c $<
