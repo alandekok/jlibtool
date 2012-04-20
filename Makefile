@@ -4,15 +4,18 @@ CFLAGS = -g -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-stri
 all: build-tools libexample.la libexample2.la libexample3.la
 
 clean:
-	rm -f jlibtool *.la *.o *.lo *~ example2.c example3.c CC LINK
-	rm -rf .libs
+	@rm -f jlibtool  example2.c example3.c CC LINK
+	@rm -f *.o *.lo *~
+	@rm -f *.la *.so *.dll *.dylib
+	@rm -rf .libs/ *.dSYM/
 
 build-tools: jlibtool CC LINK
 
 CC LINK: jlibtool
-	ln -sf $< $@
+	@ln -sf $< $@
 
 jlibtool: jlibtool.c
+	@$(CC) $< -o $@
 
 ######################################################################
 #
@@ -36,11 +39,11 @@ libexample.la: example.lo
 example2.c: example.c
 	ln -sf $< $@
 
-example2.lo: example2.c
-	./jlibtool CC -c example2.c -o $@
+example2.lo: example2.c jlibtool
+	./jlibtool CC -c $< -o $@
 
-libexample2.la: example2.lo
-	./jlibtool LINK -shared -o $@ $^
+libexample2.la: example2.lo jlibtool
+	./jlibtool LINK -shared -o $@ $<
 
 ######################################################################
 #
@@ -51,14 +54,10 @@ libexample2.la: example2.lo
 example3.c: example.c
 	ln -sf $< $@
 
-example3.lo: CC
-
-example3.lo: example3.c
+example3.lo: example3.c CC
 	./CC -c $< -o $@
 
-libexample3.la: LINK
-
-libexample3.la: example3.lo
+libexample3.la: example3.lo LINK
 	./LINK -shared -o $@ $<
 
 #####
@@ -66,20 +65,14 @@ libexample3.la: example3.lo
 example4.c: example.c
 	ln -sf $< $@
 
-example4.lo: CC
-
-example4.lo: example4.c
+example4.lo: example4.c CC
 	./CC -c $< -o -c $@
 
-libexample4.a: LINK
-
-libexample4.a: example4.lo
+libexample4.a: example4.lo LINK
 	./LINK -o $@ $<
 
-libexample4.la: LINK
-
-libexample4.la: example4.lo
-	./jlibtool -o libexample.dylib  $<
+libexample4.la: example4.lo jlibtool
+	./jlibtool -o $@  $<
 
 main.lo: jlibtool
 
