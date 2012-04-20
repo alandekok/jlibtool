@@ -2390,8 +2390,44 @@ static int add_for_runtime(command_t *cmd_data)
         return 0;
     }
     if (cmd_data->output == otDynamicLibraryOnly ||
-        cmd_data->output == otLibrary) {
-        FILE *f=fopen(cmd_data->fake_output_name,"w");
+	cmd_data->output == otLibrary) {
+	const char *ext = strrchr(cmd_data->fake_output_name, '.');
+        FILE *f;
+
+	if (ext && (strcmp(ext, ".la") != 0)) {
+		const char *ext2, *path;
+
+		path = NULL;
+		if (cmd_data->shared_name.normal) {
+			ext2 = strrchr(cmd_data->shared_name.normal, '.');
+			if (ext2 && (strcmp(ext, ext2) == 0)) {
+				path = cmd_data->shared_name.normal;
+			}
+		}
+
+		if (cmd_data->static_name.normal) {
+			ext2 = strrchr(cmd_data->static_name.normal, '.');
+			if (ext2 && (strcmp(ext, ext2) == 0)) {
+				path = cmd_data->static_name.normal;
+			}
+		}
+
+		if (path) {
+			if (symlink(path, cmd_data->fake_output_name) < 0) {
+				fprintf(stderr, "Error: Can't create %s: %s\n",
+					path, strerror(errno));
+				return -1;
+			}
+
+			return 0;
+		}
+
+		/*
+		 *	Else fall back to the old way of doing it.
+		 */
+	}
+
+	f = fopen(cmd_data->fake_output_name,"w");
         if (f == NULL) {
             return -1;
         }
