@@ -1724,6 +1724,13 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         return 1;
     }
 
+    if (strcmp(ext, OBJECT_EXT) == 0) {
+        cmd_data->output = otObject;
+        cmd_data->basename = arg;
+	cmd_data->output_name = arg;
+        return 1;
+    }
+
     if (strcmp(ext, DYNAMIC_LIB_EXT) == 0) {
       fprintf(stderr, "Please build libraries with .la target, not ."
 	      DYNAMIC_LIB_EXT "\n");
@@ -1854,7 +1861,7 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
 		    push_count_chars(cmd_data->arglist, LINK_c);
 	    }
 	    else if ((strcmp(arg + 1, "lo") == 0) ||
-		     (strcmp(arg + 1, "o") == 0)) {
+		     (strcmp(arg + 1, OBJECT_EXT) == 0)) {
 		    cmd_data->mode = mCompile;
 		    push_count_chars(cmd_data->arglist, CC);
 	    }
