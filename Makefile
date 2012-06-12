@@ -1,7 +1,7 @@
 CFLAGS = -g -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -W -Wredundant-decls -Wundef
 
 .PHONY: all clean
-all: libexample.la libexample2.la libexample3.la
+all: libexample.la libexample2.la
 
 clean:
 	@rm -f jlibtool  example2.c example3.c CC LINK
