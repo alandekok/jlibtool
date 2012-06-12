@@ -1,11 +1,12 @@
 jlibtool
 *.la
+*.dylib
+*.so
+*.a
 *.o
 *.lo
 *~
 .libs
-CC
-LINK
 *.dSYM
-example2.c
-example3.c
+lib*
+main
