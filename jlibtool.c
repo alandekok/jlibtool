@@ -2110,8 +2110,18 @@ static void post_parse_fixup(command_t *cmd_data)
     {
     case mCompile:
 #ifdef PIC_FLAG
-        if (cmd_data->options.pic_mode != pic_AVOID) {
-            push_count_chars(cmd_data->arglist, PIC_FLAG);
+	if (cmd_data->options.pic_mode == pic_UNKNOWN) {
+		const char *ext;
+
+		/*
+		 *	"lo" defaults to "PIC"
+		 */
+		ext = strrchr(cmd_data->basename, '.');
+		if (ext && (strcmp(ext + 1, "lo") == 0)) {
+			push_count_chars(cmd_data->arglist, PIC_FLAG);
+		}
+	} else if (cmd_data->options.pic_mode == pic_PREFER) {
+		push_count_chars(cmd_data->arglist, PIC_FLAG);
         }
 #endif
         if (cmd_data->output_name) {
