@@ -625,7 +625,11 @@ static void print_config(const char *value)
 #ifdef RANLIB
     printc("ranlib", RANLIB);
 #endif
-
+    printc("CC", CC);
+    printc("CXX", CXX);
+    printc("LINK_c", LINK_c);
+    printc("LINK_cxx", LINK_cxx);
+    printc("LIBDIR", LIBDIR);
 }
 /*
  * Add a directory to the runtime library search path.
