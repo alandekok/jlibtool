@@ -66,7 +66,7 @@ example4.c: example.c
 	ln -sf $< $@
 
 example4.lo: example4.c CC
-	./CC -c $< -o -c $@
+	./CC -c $< -o $@
 
 libexample4.a: example4.lo LINK
 	./LINK -o $@ $<
