@@ -2444,9 +2444,10 @@ static int add_for_runtime(command_t *cmd_data)
 		}
 
 		if (path) {
+			unlink(cmd_data->fake_output_name);
 			if (symlink(path, cmd_data->fake_output_name) < 0) {
 				fprintf(stderr, "Error: Can't create %s: %s\n",
-					path, strerror(errno));
+					cmd_data->fake_output_name, strerror(errno));
 				return -1;
 			}
 
