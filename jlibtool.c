@@ -2423,8 +2423,12 @@ static int add_for_runtime(command_t *cmd_data)
     }
     if (cmd_data->output == otDynamicLibraryOnly ||
 	cmd_data->output == otLibrary) {
-	const char *ext = strrchr(cmd_data->fake_output_name, '.');
+	const char *ext;
         FILE *f;
+
+	ext = cmd_data->fake_output_name;
+	if (!ext) ext = cmd_data->output_name;
+	ext = strrchr(ext, '.');
 
 	if (ext && (strcmp(ext, ".la") != 0)) {
 		const char *ext2, *path;
@@ -2444,7 +2448,7 @@ static int add_for_runtime(command_t *cmd_data)
 			}
 		}
 
-		if (path) {
+		if (path && cmd_data->fake_output_name) {
 			unlink(cmd_data->fake_output_name);
 			if (symlink(path, cmd_data->fake_output_name) < 0) {
 				fprintf(stderr, "Error: Can't create %s: %s\n",
