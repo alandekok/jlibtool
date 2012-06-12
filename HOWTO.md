@@ -59,24 +59,24 @@ The built-in definitions are:
 ## Extreme Simplification
 
 That is not all.  The commands above contains duplication which can be
-removed.  The "-c" command-line option is not necessary, as the input
-file is already a ".c" file.  As fits our philosophy, jlibtool just
+removed.  The `-c` command-line option is not necessary, as the input
+file is already a `.c` file.  As fits our philosophy, jlibtool just
 Does the Right Thing.
 
 So this works:
 
-    $ ./jlibtool example.c -o example.lo
+    $ ./jlibtool -o example.lo example.c
 
 As does this:
 
-    $ ./jlibtool example.lo -o libexample.la
+    $ ./jlibtool -o libexample.la example.lo
 
 There is no need to worry about special command-line options.  It Just
 Works.
 
 This also works:
 
-    $ ./jlibtool example.lo -o libexample.so
+    $ ./jlibtool -o libexample.so example.lo
 
 Instead of creating a `.la` file, it just creates a shared library.
 
@@ -84,16 +84,16 @@ Instead of creating a `.la` file, it just creates a shared library.
 
 In the interest of not getting in your way, these two commands also work:
 
-    $ ./jlibtool example.o -o libexample.so
-    $ ./jlibtool example.lo -o libexample.a
+    $ ./jlibtool -o libexample.so example.o
+    $ ./jlibtool -o libexample.a example.lo
 
-i.e. "Use non-PIC object to create a dynamic library", and "use a PIC
-object to create a static library".
+i.e. "Create dynamic library from non-PIC object", and "Create static
+library from PIC object".
 
 The underlying philosophy is that the tool should make it easier to do
 the Right Thing.  It should _not_ prevent you from doing what you
 want.
 
 Why?  You are the administrator, and you should have absolute control
-over how you build your programs.  If jlibtool gets in your way, then
-you will not use it.  Therefore, it does not get in your way.
+over how you build your programs.  If jlibtool gets in your way, you
+won't use it.  Therefore, it does not get in your way.
