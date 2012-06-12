@@ -1607,7 +1607,10 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
     pathlen = name - arg;
 
     if (strcmp(ext, "la") == 0) {
-        assert(cmd_data->mode == mLink);
+	    if (cmd_data->mode != mLink) {
+		    fprintf(stderr, "Inconsistent arguments.  Can only create '.la' when linking\n");
+		    exit(1);
+	    }
 
         cmd_data->basename = arg;
 	if (cmd_data->options.shared == share_UNSET) {
@@ -1651,7 +1654,10 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
     }
 
     if (strcmp(ext, STATIC_LIB_EXT) == 0) {
-        assert(cmd_data->mode == mLink);
+	    if (cmd_data->mode != mLink) {
+		    fprintf(stderr, "Inconsistent arguments.  Can only create '." STATIC_LIB_EXT "' when linking\n");
+		    exit(1);
+	    }
 
         cmd_data->basename = arg;
 	cmd_data->options.shared = share_STATIC;
@@ -1681,7 +1687,10 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
     }
 
     if (strcmp(ext, DYNAMIC_LIB_EXT) == 0) {
-        assert(cmd_data->mode == mLink);
+	    if (cmd_data->mode != mLink) {
+		    fprintf(stderr, "Inconsistent arguments.  Can only create '." DYNAMIC_LIB_EXT "' when linking\n");
+		    exit(1);
+	    }
 
         cmd_data->basename = arg;
 	cmd_data->options.shared = share_SHARED;
