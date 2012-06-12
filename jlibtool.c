@@ -324,6 +324,7 @@ static void usage(int code)
 	printf("jlibtool is a replacement for GNU libtool with similar functionality.\n\n");
 
 	printf("    --config          show all configuration variables\n");
+	printf("                      use --config=FOO to show variable FOO\n");
 	printf("    --debug           enable verbose shell tracing\n");
 	printf("    --dry-run         display commands without modifying any files\n");
 	printf("    --help            display this help message and exit\n");
@@ -578,7 +579,7 @@ static int run_command(command_t *cmd_data, count_chars *cc)
  * print configuration
  * shlibpath_var is used in configure.
  */
-#define printc(_x,_y) if (!value || !strcmp(value, _x)) printf(_x "=\"%s\"\n", _y)
+#define printc(_x,_y) if (!value || !*value || !strcmp(value, _x)) printf(_x "=\"%s\"\n", _y)
 
 static void print_config(const char *value)
 {
