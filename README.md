@@ -74,41 +74,12 @@ really trying to compile a program.
 
 There is a better way.
 
-### There is a Better Way
-
-When you compile jlibtool, it knows which C compiler is used.  This is
-done by looking at the `CC` variable.  If none is set,
-then `gcc` is assumed.
-
-    $ gcc -DCC=i386-mingw32-gcc jlibtool.c -o jlibtool
-
-The value of `CC` is built into the jlibtool binary.  It can then be
-referenced when you run jlibtool, by specified the "special" command
-`CC`:
-
-    $ ./jlibtool CC -c foo.c -o foo.lo
-
-If the name is `CC`, then it acts as a C compiler.  If the name is
-`CXX`, then it acts as a C++ compiler.  If the name is `LINK`, it
-behaves like a (C) linker.  The special names `LINK.c` and `LINK.cxx`
-behave as C and C++ linkers.
-
-You can also create a symlink from these names to jlibtool.  When you
-build using the "CC" program, jlibtool _just figures it out_.
-
-    $ ln -sf jlibtool CC
-    $ ./CC -c foo.c -o foo.lo
-
-That is a minor bit of functionality which makes your build system a
-little bit cleaner.  I personally find it easier to read `CC` instead
-of `libtool --mode=compile $(CC)`.
-
-### For the Absolutely Lay
+### For the Absolutely Lazy
 
 You can avoid the above complexity entirely.  Just run jlibtool by
 itself:
 
-    $ ./jlibtool foo.c -o foo.lo
+    $ ./jlibtool -o foo.lo foo.c
 
 The output is a `lo` file, so it knows to run the C compiler.  The
 input is a `c` file, so it knows to run the C compiler.  The output is
