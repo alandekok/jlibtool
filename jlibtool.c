@@ -1449,7 +1449,8 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
 
     pathlen = name - arg;
 
-    if (strcmp(ext, "lo") == 0) {
+    if ((strcmp(ext, "lo") == 0) ||
+	(strcmp(ext, OBJECT_EXT) == 0)) {
         newarg = check_object_exists(cmd_data, arg, ext - arg);
         if (!newarg) {
 	    fprintf(stderr, "Can not find suitable object file for %s\n", arg);
