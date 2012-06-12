@@ -77,10 +77,10 @@ There is a better way.
 ### There is a Better Way
 
 When you compile jlibtool, it knows which C compiler is used.  This is
-done by looking at the `CC` environment variable.  If none is set,
+done by looking at the `CC` variable.  If none is set,
 then `gcc` is assumed.
 
-    $ CC=gcc gcc jlibtool.c -o jlibtool
+    $ gcc -DCC=i386-mingw32-gcc jlibtool.c -o jlibtool
 
 The value of `CC` is built into the jlibtool binary.  It can then be
 referenced when you run jlibtool, by specified the "special" command
