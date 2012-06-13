@@ -1767,13 +1767,38 @@ static void parse_args(int argc, char *argv[], command_t *cmd_data)
     int dashc = 0;
 
     /*
+     *  If we're called as something OTHER than jlibtool,
+     *  e.g. "program", check if ".libs/program" exists.
+     *  If so, assume "--mode=execute program"
+     *
+     *  This could be fixed to be a little more robust by
+     *  checking if argv[0] is a symlink.
+     */
+    base = jlibtool_basename(argv[0]);
+    if (base != argv[0]) {
+	    FILE *fp;
+	    char buffer[PATH_MAX];
+
+	    strcpy(buffer, argv[0]);
+	    add_dotlibs(buffer);
+
+	    fp = fopen(buffer, "r"); /* don't create it */
+	    if (fp) {
+		    fclose(fp);
+		    cmd_data->mode = mExecute;
+		    cmd_data->options.silent = 1;
+		    push_count_chars(cmd_data->arglist, buffer);
+	    }
+    }
+
+    /*
      *	We first pass over the command-line arguments looking for
      *  "--mode", etc.  If so, then use the libtool compatibility
      *  method for building the software.  Otherwise, auto-detect it
      *  via "-o" and the extensions.
      */
     base = NULL;
-    for (a = 1; a < argc; a++) {
+    if (cmd_data->mode == mUnknown) for (a = 1; a < argc; a++) {
         arg = argv[a];
 
 	if (strncmp(arg, "--mode=", 7) == 0) {
@@ -2273,8 +2298,10 @@ static int run_mode(command_t *cmd_data)
 	const char *base;
 	char *l, libpath[PATH_MAX];
 
-        strcpy(libpath, cmd_data->arglist->vals[0]);
-        add_dotlibs(libpath);
+	strcpy(libpath, cmd_data->arglist->vals[0]);
+	if (!strstr(cmd_data->arglist->vals[0], OBJDIRp)) {
+		add_dotlibs(libpath);
+	}
 
 	base = jlibtool_basename(libpath);
 	if (base == libpath) {
