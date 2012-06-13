@@ -1590,13 +1590,15 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
 #if defined(_OSD_POSIX)
         cmd_data->options.pic_mode = pic_AVOID;
 #endif
-        newarg = (char *)malloc(strlen(arg) + 5);
+        newarg = malloc(strlen(arg) + 4 + sizeof(OBJDIRp));
         strcpy(newarg, arg);
 #ifdef EXE_EXT
 	if (!ext) {
-	  strcat(newarg, EXE_EXT);
+	  	strcat(newarg, EXE_EXT);
 	}
 #endif
+
+	add_dotlibs(newarg);
         cmd_data->output_name = newarg;
         return 1;
     }
