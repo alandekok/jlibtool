@@ -926,22 +926,25 @@ static const char *darwin_dynamic_link_function(const char *version_info)
 
 
 /*
- *	Add a '.libs/' to the buffer.  The caller ensures that
+ *	Insert a '.libs/' to the buffer.  The caller ensures that
  *	The buffer is large enough to handle 6 extra characters.
+ *
+ *	foo/bar/baz.o --> foo/bar/.libs/baz.o
+ *	baz.o --> .libs/baz.o
  */
 static void add_dotlibs(char *buffer)
 {
-	char *name = strrchr(buffer, '/');
-
-	if (!name) {
-		if (!buffer[0]) {
-			strcpy(buffer, OBJDIRp);
-			return;
-		}
-		name = buffer;
-	} else {
-		name++;
+	char *name;
+	const char *base;
+	
+	if (!buffer[0]) {
+		strcpy(buffer, OBJDIRp);
+		return;
 	}
+	
+	base = jlibtool_basename(buffer);
+	name = buffer + (base - buffer); /* really name = base */
+
 	memmove(name + sizeof(OBJDIRp) - 1, name, strlen(name));
 	memcpy(name, OBJDIRp, sizeof(OBJDIRp) - 1);
 }
@@ -1556,13 +1559,7 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
             strcpy(cmd_data->basename, arg);
             strcpy(strrchr(cmd_data->basename, '.') + 1, "lo");
 
-            cmd_data->fake_output_name = strrchr(cmd_data->basename, '/');
-            if (cmd_data->fake_output_name) {
-                cmd_data->fake_output_name++;
-            }
-            else {
-                cmd_data->fake_output_name = cmd_data->basename;
-            }
+            cmd_data->fake_output_name = jlibtool_basename(cmd_data->basename);
         }
 
 	cmd_data->input = inCfile;
