@@ -2009,6 +2009,9 @@ static void link_fixup(command_t *c)
 #ifdef DYNAMIC_INSTALL_NAME
             push_count_chars(c->shared_opts.normal, DYNAMIC_INSTALL_NAME);
 
+	    if (!c->install_path) c->install_path = LIBDIR;
+	    if (!c->shared_name.normal) return;
+
             tmp = (char*)malloc(PATH_MAX);
             strcpy(tmp, c->install_path);
             strcat(tmp, strrchr(c->shared_name.normal, '/'));
