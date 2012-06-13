@@ -289,7 +289,7 @@ typedef struct {
     options_t options;
 
     char *output_name;
-    char *fake_output_name;
+    const char *fake_output_name;
     char *basename;
 
     const char *install_path;
@@ -1625,20 +1625,20 @@ static int parse_output_file_name(char *arg, command_t *cmd_data)
         cmd_data->module_name.install = gen_install_name(arg, type_MODULE_LIB);
 
         if (!cmd_data->options.dry_run) {
-		char *newname;
-		char *newext;
-		newname = malloc(strlen(cmd_data->static_name.normal) + 1);
+		const char *base;
 
-		strcpy(newname, cmd_data->static_name.normal);
-		newext = strrchr(newname, '/');
-		if (!newext) {
+		base = jlibtool_basename(cmd_data->static_name.normal);
+		if (base == cmd_data->static_name.normal) {
 			/* Check first to see if the dir already exists! */
 			safe_mkdir(OBJDIR);
 		} else {
-			*newext = '\0';
-			safe_mkdir(newname);
+			char libdir[PATH_MAX];
+
+			memcpy(libdir, cmd_data->static_name.normal,
+			       base - cmd_data->static_name.normal);
+			libdir[base - cmd_data->static_name.normal] = '\0';
+			safe_mkdir(libdir);
 		}
-		free(newname);
         }
 
 #ifdef TRUNCATE_DLL_NAME
@@ -2334,17 +2334,18 @@ static int run_mode(command_t *cmd_data)
         break;
     case mExecute:
     {
-        char *l, libpath[PATH_MAX];
+	const char *base;
+	char *l, libpath[PATH_MAX];
 
         strcpy(libpath, cmd_data->arglist->vals[0]);
         add_dotlibs(libpath);
-	l = strrchr(libpath, '/');
-	if (!l) l = strrchr(libpath, '\\');
-	if (l) {
-	    *l = '\0';
-	    l = libpath;
+
+	base = jlibtool_basename(libpath);
+	if (base == libpath) {
+		l = OBJDIRp;
 	} else {
-	    l = OBJDIRp;
+		libpath[base - libpath] = '\0';
+		l = libpath;
 	}
 
 	setenv(LD_LIBRARY_PATH_LOCAL, l, 1);
