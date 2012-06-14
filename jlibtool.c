@@ -314,6 +314,8 @@ typedef struct {
     const char *undefined_flag;
 } command_t;
 
+static const char *progname = NULL;
+
 #ifdef RPATH
 static void add_rpath(count_chars *cc, const char *path);
 #endif
@@ -2370,6 +2372,28 @@ static int ensure_fake_uptodate(command_t *cmd_data)
         return 0;
     }
 
+    /*
+     *	Link the "fake" executable to jlibtool.  This lets us run
+     *	"./program", without any magic.  jlibtool will then notice
+     *	that it's not called "jlibtool", check for "./.libs/program",
+     *	and if found, set LD_LIBRARY_PATH and then exec
+     *	"./.libs/program"
+     */
+    if ((cmd_data->mode == mLink) && (cmd_data->output == otProgram) &&
+	cmd_data->fake_output_name) {
+	    char resolved_path[PATH_MAX];
+
+	    realpath(progname, resolved_path);
+	
+	    unlink(cmd_data->fake_output_name);
+	    if (symlink(resolved_path, cmd_data->fake_output_name) < 0) {
+		    fprintf(stderr, "Error: Can't create %s: %s\n",
+			    cmd_data->fake_output_name, strerror(errno));
+		    return 1;
+	    }
+	    return 0;
+    }
+
     touch_args[0] = "touch";
     touch_args[1] = cmd_data->fake_output_name;
     touch_args[2] = NULL;
@@ -2442,6 +2466,7 @@ int main(int argc, char *argv[])
     int rc;
     command_t cmd_data;
 
+    progname = argv[0];
     memset(&cmd_data, 0, sizeof(cmd_data));
 
     cmd_data.options.pic_mode = pic_UNKNOWN;
