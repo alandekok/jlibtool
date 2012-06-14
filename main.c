@@ -6,6 +6,8 @@ extern int example_function(const char *s);
 
 int main(int argc, char **argv)
 {
+	printf("We are ");
+
 	if (argc == 1) {
 		example_function(__FUNCTION__);
 	} else {
