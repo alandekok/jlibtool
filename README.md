@@ -1,7 +1,7 @@
 # About
 
 Jlibtool is a replacement for GNU Libtool.  As it is a C program
-rather than a shell script, it is significantly faster than libool.
+rather than a shell script, it is significantly faster than libtool.
 This speed difference is most noticable on large projects.
 
 ## Origin
@@ -18,7 +18,8 @@ loadable modules, cross-platform).
 
 There is no `configure` script.  None is needed.  There is no
 `Makefile`.  None is needed.  Jlibtool is written using functions that
-are available on all modern operating systems.
+are available on all modern operating systems.  If your operating
+system can't build jlibtool, please submit a patch.
 
 Just use `make`, which is smart enough to figure out how to build C
 programs:
@@ -29,7 +30,7 @@ If you don't have `make`, use the following command:
 
     $ cc jlibtool.c -o jlibtool
 
-If you have no working C compiler, you don't need jlibtool.
+If you do not have a working C compiler, you do not need jlibtool.
 
 ## Portability
 
@@ -40,7 +41,9 @@ Please submit patches, and they will be integrated into the next
 version.
 
 The source contains compile-time checks for OS/2, Mac OS X, Linux,
-FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.
+FreeBSD, NetBSD, SUN, MingW, and some more esoteric systems.  We
+believe that these checks are reasonable, and up to date.  If not,
+please submit patches.
 
 ## Usage
 
@@ -49,10 +52,10 @@ Edit your build system (usually a Makefile), and replace references to
 
 ### Libtool Makes Life Harder
 
-Jlibtool is designed for tha lazy programmer.  For compatibility, it
-still accepts the standard libtool `--mode=compile` options.  But it
-can be smarter.  Let's see why, using an example.  The following line
-is typical of how libtool is used:
+For compatibility, jlibtool still accepts the standard libtool options
+such as `--mode=compile`.  But jlibtool is smarter than libtool.
+Let's see why, using an example.  The following line is typical of how
+libtool is used:
 
     $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
 
@@ -72,51 +75,23 @@ commands and _new_ command-line options.  These options force you to
 tell libtool things it already knows.  e.g. when running "CC", you are
 really trying to compile a program.
 
-There is a better way.
+There is a better way.  For simple projects, just do this:
 
-### For the Absolutely Lazy
+    $ jlibtool -c foo.c -o foo.lo
 
-You can avoid the above complexity entirely.  Just run jlibtool by
-itself:
+Jlibtool looks at the input files, the output files, and determines
+what to do.  Most of the time this decision can be made automatically.
+In those situations, jlibtool makes your life _much_ simpler.
 
-    $ ./jlibtool -o foo.lo foo.c
+Where you need to pass additional options, you can use them, too:
 
-The output is a `lo` file, so it knows to run the C compiler.  The
-input is a `c` file, so it knows to run the C compiler.  The output is
-a `lo` file, it knows to pass the `-c` option to the C compiler.
+    $ jlibtool $(CC) $(CFLAGS) -c foo.c -o foo.lo
 
-The decisions made by jlibtool can rarely go wrong.  In most cases,
-there is only one choice for what to do.  And that choice is obvious.
-Where the decision might be wrong, you can just specify `CC` or even
-`--mode=...` yourself.  jlibtool is smart enough to get things done
-for you.  It's also smart enough to get out of your way when you know
-better.
+Or for people who like punishment:
 
-The same decisions are made for other extensions, too:
+    $ libtool --mode=compile $(CC) $(CFLAGS) -c foo.c -o foo.lo
 
-    $ ./jlibtool -o foo ...
-    $ ./jlibtool -o foo.a foo.lo bar.lo
-    $ ./jlibtool -o libfoo.la foo.lo bar.lo
-    $ ./jlibtool -o libfoo.so foo.lo bar.lo
-    $ ./jlibtool -o libfoo.dylib foo.lo bar.lo
-
-These commans create (respectively) an executable, a static libary, a
-"libtool" dynamic library, a Linux/BSD dynamic library, and finally a
-Mac OSX dynamic library.  When used this way, all of redundancy of
-`libtool --mode=compile` is avoided.  The operation mode is implied by
-the names of the inputs and outputs.
-
-The goal is for jlibtool to just Do the Right Thing.  All you need to
-do is to tell it to "build me a `.so` file", and all of the
-platform-specific directives are taken care of.  There is no need to
-remember even _more_ magic command-line arguments to a new tool that
-"helps" with portability.
-
-Jlibtool has been used in a number of build systems.  All of the
-platform-specific magic is hidden inside of the jlibtool binary.  The
-build systems aren't littered with references to `libtool` and hordes
-of libtool-specific command-line arguments.  This means your build
-system is much simpler, and more understandable.
+See the HOWTO.md file in this directory for more complete documentation.
 
 ## Limitations
 
@@ -125,7 +100,7 @@ libtool.  Libtool has many features, and has been under development
 for many years.  Libtool is intended to solve portability problems for
 dozens of esoteric operating systems and compilers, many of which no
 longer have net access.  The result is that users of libtool are being
-punished with slow build times for the mistakes that others made
+punished with slow build times for the mistakes that other people made
 decades ago.
 
 Jlibtool is intended to solve the "last mile" of portability problems.
