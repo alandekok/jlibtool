@@ -2313,7 +2313,9 @@ static int run_mode(command_t *cmd_data)
 		l = libpath;
 	}
 
+#ifndef __MINGW32__
 	setenv(LD_LIBRARY_PATH_LOCAL, l, 1);
+#endif   
 	rv = run_command(cmd_data, cmd_data->arglist);
 	if (rv) {
 	    return rv;
@@ -2383,14 +2385,18 @@ static int ensure_fake_uptodate(command_t *cmd_data)
 	cmd_data->fake_output_name) {
 	    char resolved_path[PATH_MAX];
 
+#ifdef HAS_REALPATH
 	    realpath(progname, resolved_path);
+#endif      
 	
 	    unlink(cmd_data->fake_output_name);
+#ifndef __MINGW32__      
 	    if (symlink(resolved_path, cmd_data->fake_output_name) < 0) {
 		    fprintf(stderr, "Error: Can't create %s: %s\n",
 			    cmd_data->fake_output_name, strerror(errno));
 		    return 1;
 	    }
+#endif       
 	    return 0;
     }
 
@@ -2435,11 +2441,13 @@ static int add_for_runtime(command_t *cmd_data)
 
 		if (path && cmd_data->fake_output_name) {
 			unlink(cmd_data->fake_output_name);
+#ifndef __MINGW32__         
 			if (symlink(path, cmd_data->fake_output_name) < 0) {
 				fprintf(stderr, "Error: Can't create %s: %s\n",
 					cmd_data->fake_output_name, strerror(errno));
 				return -1;
 			}
+#endif         
 
 			return 0;
 		}
