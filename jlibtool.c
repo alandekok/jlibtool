@@ -955,17 +955,17 @@ static char *gen_library_name(const char *name, enum lib_type genlib)
 {
     char *newarg, *newext;
 
-    newarg = (char *)malloc(strlen(name) + 11);
+    newarg = (char *)calloc(strlen(name) + 11, 1);
 
     if (genlib == type_MODULE_LIB && strncmp(name, "lib", 3) == 0) {
         name += 3;
     }
 
     if (genlib == type_MODULE_LIB) {
-        strcat(newarg, jlibtool_basename(name));
+        strcpy(newarg, jlibtool_basename(name));
     }
     else {
-        strcat(newarg, name);
+        strcpy(newarg, name);
     }
 
     newext = strrchr(newarg, '.') + 1;
