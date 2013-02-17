@@ -2366,6 +2366,8 @@ static void cleanup_tmp_dir(const char *dirname)
     }
 
     rmdir(dirname);
+
+    (void) closedir(dir);
 }
 
 static void cleanup_tmp_dirs(command_t *cmd_data)
