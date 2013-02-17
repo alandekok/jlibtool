@@ -2346,7 +2346,7 @@ static void cleanup_tmp_dir(const char *dirname)
             strcpy(fullname, dirname);
             strcat(fullname, "/");
             strcat(fullname, entry->d_name);
-            remove(fullname);
+            (void) remove(fullname);
         }
     }
 
