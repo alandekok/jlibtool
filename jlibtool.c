@@ -1054,6 +1054,8 @@ static const char *check_object_exists(command_t *cmd, const char *arg, int argl
         return newarg;
     }
 
+    free(newarg);
+
     return NULL;
 }
 
