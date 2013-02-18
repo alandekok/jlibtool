@@ -666,7 +666,7 @@ static int parse_long_opt(char *arg, command_t *cmd_data)
     if (equal_pos) {
         strncpy(var, arg, equal_pos - arg);
         var[equal_pos - arg] = 0;
-        strcpy(value, equal_pos + 1);
+        strlcpy(value, equal_pos + 1, sizeof(var));
     } else {
         strncpy(var, arg, sizeof(var) - 1);
         var[sizeof(var) - 1] = '\0';
@@ -1285,6 +1285,7 @@ static void add_rpath_file(count_chars *cc, const char *arg)
     path = load_install_path(arg);
     if (path) {
         add_rpath(cc, path);
+	free(path);
     }
 }
 
@@ -2371,6 +2372,7 @@ static void cleanup_tmp_dir(const char *dirname)
 
     if ((strlen(dirname) + 1 + sizeof(entry->d_name)) >= sizeof(fullname)) {
           fprintf(stderr, "Dirname too long out of buffer space");
+	  (void) closedir(dir);
           return;
     }
 
