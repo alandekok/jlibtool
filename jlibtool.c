@@ -168,6 +168,18 @@
 #  define EXE_EXT ".exe"
 #endif
 
+#ifndef LINKER_FLAG_PREFIX
+#define LINKER_FLAG_PREFIX_STR ""
+#else
+#define LINKER_FLAG_PREFIX_STR LINKER_FLAG_PREFIX
+#endif
+
+#ifdef LINKER_FLAG_NO_EQUALS
+#define LINKER_FLAGS_EQUALS_STR ""
+#else
+#define LINKER_FLAGS_EQUALS_STR "="
+#endif
+
 #ifndef CC
 #define CC "gcc"
 #endif
@@ -207,6 +219,7 @@
 #define PATH_MAX 1024
 #endif
 
+#define STRLIT_SIZE(a) (sizeof(a) - 1)
 
 /* We want to say we are libtool 1.4 for shlibtool compatibility. */
 #define VERSION "1.4"
@@ -1148,19 +1161,18 @@ static char * load_install_path(const char *arg)
     return path;
 }
 
-static char * load_noinstall_path(const char *arg, int pathlen)
+/* arg contains a filename with or without path prefix, 
+ * pathlen denotes the length of its path prefix.
+ * in other words, arg + pathname = start of filename.
+ * we're only interested in the path part of the filename here. */
+static char * load_noinstall_path(const char *arg, size_t pathlen)
 {
     char *newarg, *expanded_path;
-    int newpathlen;
+    size_t newpathlen, newarglen;
 
-    newarg = (char *)malloc(strlen(arg) + 10);
-    strcpy(newarg, arg);
-    newarg[pathlen] = 0;
-
-    newpathlen = pathlen;
-    strcat(newarg, OBJDIR);
-    newpathlen += sizeof(OBJDIR) - 1;
-    newarg[newpathlen] = 0;
+    newarg = (char *)malloc(pathlen + 10);
+    memcpy(newarg, arg, pathlen);
+    memcpy(newarg + pathlen, OBJDIR, STRLIT_SIZE(OBJDIR) + 1);
 
 #ifdef HAS_REALPATH
     expanded_path = malloc(PATH_MAX);
@@ -1216,28 +1228,10 @@ static void add_dynamic_link_opts(command_t *cmd_data, count_chars *args)
 #ifdef RPATH
 static void add_rpath(count_chars *cc, const char *path)
 {
-    int size = 0;
-    char *tmp;
-
-#ifdef LINKER_FLAG_PREFIX
-    size = strlen(LINKER_FLAG_PREFIX);
-#endif
-    size = size + strlen(path) + strlen(RPATH) + 2;
-    tmp = malloc(size);
-    if (tmp == NULL) {
-        return;
-    }
-#ifdef LINKER_FLAG_PREFIX
-    strcpy(tmp, LINKER_FLAG_PREFIX);
-    strcat(tmp, RPATH);
-#else
-    strcpy(tmp, RPATH);
-#endif
-#ifndef LINKER_FLAG_NO_EQUALS
-    strcat(tmp, "=");
-#endif
-    strcat(tmp, path);
-
+    size_t size = STRLIT_SIZE(LINKER_FLAG_PREFIX_STR) + STRLIT_SIZE(RPATH) + strlen(path) + 2;
+    char *tmp = malloc(size);
+    if (!tmp) return;
+    snprintf(tmp, size, "%s%s%s%s", LINKER_FLAG_PREFIX_STR, RPATH, LINKER_FLAGS_EQUALS_STR, path);
     push_count_chars(cc, tmp);
 }
 
@@ -1328,9 +1322,9 @@ static void add_minus_l(count_chars *cc, const char *arg)
         push_count_chars(cc, "-L");
         push_count_chars(cc, arg);
         /* we need one argument like -lapr-1 */
-        newarg = malloc(strlen(file) + 3);
-        strcpy(newarg, "-l");
-        strcat(newarg, file);
+        size_t l = strlen(file) + 3;
+        newarg = malloc(l);
+        snprintf(newarg, l, "-l%s", file);
         push_count_chars(cc, newarg);
     } else {
         push_count_chars(cc, arg);
@@ -1557,9 +1551,10 @@ static int parse_input_file_name(char *arg, command_t *cmd_data)
     if (strcmp(ext, "c") == 0) {
         /* If we don't already have an idea what our output name will be. */
         if (cmd_data->basename == NULL) {
-            cmd_data->basename = (char *)malloc(strlen(arg) + 4);
-            strcpy(cmd_data->basename, arg);
-            strcpy(strrchr(cmd_data->basename, '.') + 1, "lo");
+            size_t l = ext - arg;
+            cmd_data->basename = (char *)malloc(l + 4);
+            memcpy(cmd_data->basename, arg, l);
+            memcpy(cmd_data->basename + l, "lo", 3);
 
             cmd_data->fake_output_name = jlibtool_basename(cmd_data->basename);
         }
@@ -1939,8 +1934,7 @@ static void generate_def_file(command_t *cmd_data)
     int a;
 
     if (cmd_data->output_name) {
-        strcpy(def_file, cmd_data->output_name);
-        strcat(def_file, ".def");
+        snprintf(def_file, sizeof def_file, "%s.def", cmd_data->output_name);
         hDef = fopen(def_file, "w");
 
         if (hDef != NULL) {
@@ -1977,15 +1971,10 @@ static void generate_def_file(command_t *cmd_data)
             export_args[num_export_args++] = DEF2IMPLIB_CMD;
             export_args[num_export_args++] = "-o";
 
-            strcpy(implib_file, OBJDIRp);
-            strcat(implib_file, cmd_data->basename);
-            ext = strrchr(implib_file, '.');
-
-            if (ext)
-                *ext = 0;
-
-            strcat(implib_file, ".");
-            strcat(implib_file, STATIC_LIB_EXT);
+            char buf[1024];
+            snprintf(buf, sizeof buf, "%s", cmd_data->basename);
+            if((ext = strrchr(buf, '.'))) *ext = 0;
+            snprintf(implib_file, sizeof impllib_file, "%s/%s.%s", OBJDIR, buf, STATIC_LIB_EXT);
 
             export_args[num_export_args++] = implib_file;
             export_args[num_export_args++] = def_file;
@@ -2042,8 +2031,7 @@ static void link_fixup(command_t *c)
 	    if (!c->shared_name.normal) return;
 
             tmp = (char*)malloc(PATH_MAX);
-            strcpy(tmp, c->install_path);
-            strcat(tmp, strrchr(c->shared_name.normal, '/'));
+            snprintf(tmp, PATH_MAX, "%s%s", c->install_path, strrchr(c->shared_name.normal, '/'));
             push_count_chars(c->shared_opts.normal, tmp);
 #endif
         }
@@ -2343,9 +2331,7 @@ static void cleanup_tmp_dir(const char *dirname)
 
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_name[0] != '.') {
-            strcpy(fullname, dirname);
-            strcat(fullname, "/");
-            strcat(fullname, entry->d_name);
+            snprintf(fullname, sizeof fullname, "%s/%s", dirname, entry->d_name);
             remove(fullname);
         }
     }
