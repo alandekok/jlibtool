@@ -1070,7 +1070,7 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
 
     newarg = (char *)malloc(strlen(arg) + 10);
     strcpy(newarg, arg);
-    newarg[pathlen] = 0;
+    newarg[pathlen] = '\0';
 
     newpathlen = pathlen;
     if (libdircheck) {
@@ -1078,8 +1078,14 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
         newpathlen += sizeof(OBJDIRp) - 1;
     }
 
-    strcpy(newarg+newpathlen, arg+pathlen);
+    strcpy(newarg + newpathlen, arg + pathlen);
     ext = strrchr(newarg, '.') + 1;
+    if (!ext) {
+    	printf("Error: Library path does not have an extension");
+	free(newarg);
+	
+	return NULL;
+    }
 
     pass = type_UNKNOWN;
 
@@ -1123,6 +1129,8 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
     if (rv == 0) {
         return newarg;
     }
+
+    free(newarg)
 
     return NULL;
 }
