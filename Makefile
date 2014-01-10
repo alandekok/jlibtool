@@ -28,7 +28,7 @@ libexample.la: example.lo jlibtool
 #  Another example, where jlibtool Does the Right Thing.  The C
 #  compiler is normally "gcc".  That can be changed by doing:
 #
-#	$ CC=/path/to/compiler cc jlibtool.c -o jlibtool
+#	$ cc -DCC=/path/to/compiler jlibtool.c -o jlibtool
 
 example2.lo: example.c jlibtool
 	./jlibtool -c $< -o $@
@@ -36,10 +36,8 @@ example2.lo: example.c jlibtool
 libexample2.la: example2.lo jlibtool
 	./jlibtool -shared -o $@ $<
 
-main.lo: jlibtool
+main.lo: main.c jlibtool
+	./jlibtool -o $@ -c $<
 
 main: main.lo libexample.la
 	./jlibtool -o $@ -rpath /usr/local/lib libexample.la  $< 
-
-main.lo: main.c
-	./jlibtool -o $@ -c $<
