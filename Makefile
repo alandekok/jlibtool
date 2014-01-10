@@ -18,7 +18,7 @@ jlibtool: jlibtool.c
 #  The first example.  You can use jlibtool just like libtool.
 #
 example.lo: example.c jlibtool
-	./jlibtool --mode=compile $(CC) example.c -o $@
+	./jlibtool --mode=compile $(CC) -c example.c -o $@
 
 libexample.la: example.lo jlibtool
 	./jlibtool --mode=link $(CC) -shared -rpath /usr/local/lib -o $@ $<
