@@ -1145,7 +1145,7 @@ static char *check_library_exists(command_t *cmd, const char *arg, int pathlen,
         return newarg;
     }
 
-    free(newarg)
+    free(newarg);
 
     return NULL;
 }
@@ -2314,6 +2314,13 @@ static int run_mode(command_t *cmd_data)
     {
 	const char *base;
 	char *l, libpath[PATH_MAX];
+
+        if (strlen(cmd_data->arglist->vals[0]) >= PATH_MAX) {
+        	fprintf(stderr, "Libpath too long no buffer space");
+        	rv = 1;
+        	
+        	goto finish;
+        }
 
 	strcpy(libpath, cmd_data->arglist->vals[0]);
 	if (!strstr(cmd_data->arglist->vals[0], OBJDIRp)) {
